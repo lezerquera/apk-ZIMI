@@ -2594,6 +2594,12 @@ function App() {
           logout={logout}
         />
       )}
+      
+      {/* Notification System for Admin */}
+      {isAuthenticated && user?.role === 'admin' && (
+        <NotificationSystem user={user} />
+      )}
+      
       <main className={showMobileNav ? "pb-20 md:pb-0" : ""}>
         {renderPage()}
       </main>
