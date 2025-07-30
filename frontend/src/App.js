@@ -1588,7 +1588,7 @@ const AppointmentsPage = ({ setCurrentPage }) => {
               <span>+1 305 274 4351</span>
             </a>
             <a
-              href="https://wa.me/19546698708"
+              href="https://wa.me/13052744351"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 text-green-600 hover:text-green-800"
