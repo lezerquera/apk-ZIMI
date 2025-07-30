@@ -386,6 +386,476 @@ const RegisterPage = ({ setCurrentPage, setUser, setIsAuthenticated }) => {
   );
 };
 
+// Messaging System Component
+const MessagingPage = ({ setCurrentPage, user }) => {
+  const [messages, setMessages] = useState([]);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [showCompose, setShowCompose] = useState(false);
+  const [newMessage, setNewMessage] = useState({
+    receiver_id: '',
+    receiver_name: '',
+    subject: '',
+    message: '',
+    message_type: 'general'
+  });
+  const [patients, setPatients] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchMessages();
+    fetchUnreadCount();
+    if (user?.role === 'admin') {
+      fetchPatients();
+    }
+    
+    // Refresh messages every 30 seconds
+    const interval = setInterval(() => {
+      fetchMessages();
+      fetchUnreadCount();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const fetchMessages = async () => {
+    try {
+      const response = await axios.get(`${API}/messages/${user.id}`);
+      setMessages(response.data);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await axios.get(`${API}/messages/unread/${user.id}`);
+      setUnreadCount(response.data.unread_count);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      const response = await axios.get(`${API}/appointments`);
+      const uniquePatients = response.data.reduce((acc, apt) => {
+        if (!acc.find(p => p.id === apt.patient_id)) {
+          acc.push({
+            id: apt.patient_id,
+            name: apt.patient_name,
+            email: apt.patient_email
+          });
+        }
+        return acc;
+      }, []);
+      setPatients(uniquePatients);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+    }
+  };
+
+  const sendMessage = async () => {
+    setLoading(true);
+    try {
+      await axios.post(`${API}/messages`, newMessage, {
+        params: {
+          sender_id: user.id,
+          sender_name: user.role === 'admin' ? 'Dr. Zerquera' : user.name
+        }
+      });
+      
+      setNewMessage({
+        receiver_id: '',
+        receiver_name: '',
+        subject: '',
+        message: '',
+        message_type: 'general'
+      });
+      setShowCompose(false);
+      fetchMessages();
+      alert('Mensaje enviado exitosamente');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Error enviando el mensaje');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const markAsRead = async (messageId) => {
+    try {
+      await axios.put(`${API}/messages/${messageId}/read`);
+      fetchMessages();
+      fetchUnreadCount();
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+    }
+  };
+
+  const replyToMessage = async (messageId, replyText) => {
+    try {
+      await axios.post(`${API}/messages/${messageId}/reply`, 
+        { message: replyText },
+        {
+          params: {
+            sender_id: user.id,
+            sender_name: user.role === 'admin' ? 'Dr. Zerquera' : user.name
+          }
+        }
+      );
+      fetchMessages();
+      setSelectedMessage(null);
+      alert('Respuesta enviada exitosamente');
+    } catch (error) {
+      console.error('Error replying to message:', error);
+      alert('Error enviando la respuesta');
+    }
+  };
+
+  const getMessageTypeIcon = (type) => {
+    switch (type) {
+      case 'appointment': return '📅';
+      case 'medical': return '🩺';
+      case 'reminder': return '⏰';
+      default: return '💬';
+    }
+  };
+
+  const getMessageTypeColor = (type) => {
+    switch (type) {
+      case 'appointment': return 'bg-blue-100 text-blue-800';
+      case 'medical': return 'bg-green-100 text-green-800';
+      case 'reminder': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-blue-900">
+              💬 Mensajes {unreadCount > 0 && (
+                <span className="bg-red-500 text-white px-3 py-1 rounded-full text-lg ml-2">
+                  {unreadCount}
+                </span>
+              )}
+            </h1>
+            <p className="text-gray-600">
+              {user?.role === 'admin' 
+                ? 'Comunicación con pacientes' 
+                : 'Comunicación con Dr. Zerquera'
+              }
+            </p>
+          </div>
+          <div className="space-x-4">
+            <button
+              onClick={() => setShowCompose(true)}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
+            >
+              ✏️ Nuevo Mensaje
+            </button>
+            <button
+              onClick={() => setCurrentPage(user?.role === 'admin' ? 'admin' : 'inicio')}
+              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+            >
+              ← Volver
+            </button>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Messages List */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-lg">
+              <div className="p-4 border-b">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Conversaciones ({messages.length})
+                </h3>
+              </div>
+              <div className="max-h-96 overflow-y-auto">
+                {messages.length === 0 ? (
+                  <div className="p-6 text-center text-gray-500">
+                    <div className="text-4xl mb-2">📭</div>
+                    <p>No hay mensajes</p>
+                  </div>
+                ) : (
+                  messages.map((message) => (
+                    <div
+                      key={message.id}
+                      onClick={() => {
+                        setSelectedMessage(message);
+                        if (!message.is_read && message.receiver_id === user.id) {
+                          markAsRead(message.id);
+                        }
+                      }}
+                      className={`p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
+                        !message.is_read && message.receiver_id === user.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                      } ${selectedMessage?.id === message.id ? 'bg-blue-100' : ''}`}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="font-medium text-gray-800">
+                          {message.sender_id === user.id ? `Para: ${message.receiver_name}` : `De: ${message.sender_name}`}
+                        </span>
+                        <span className={`px-2 py-1 rounded-full text-xs ${getMessageTypeColor(message.message_type)}`}>
+                          {getMessageTypeIcon(message.message_type)}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-gray-900 mb-1">
+                        {message.subject}
+                      </p>
+                      <p className="text-xs text-gray-600 mb-2">
+                        {message.message.length > 60 
+                          ? `${message.message.substring(0, 60)}...` 
+                          : message.message
+                        }
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {new Date(message.created_at).toLocaleDateString()} {new Date(message.created_at).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Message Detail/Compose */}
+          <div className="lg:col-span-2">
+            {showCompose ? (
+              // Compose Message
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-semibold text-gray-800">Nuevo Mensaje</h3>
+                  <button
+                    onClick={() => setShowCompose(false)}
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {user?.role === 'admin' ? (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Para (Paciente)
+                      </label>
+                      <select
+                        value={newMessage.receiver_id}
+                        onChange={(e) => {
+                          const selectedPatient = patients.find(p => p.id === e.target.value);
+                          setNewMessage({
+                            ...newMessage,
+                            receiver_id: e.target.value,
+                            receiver_name: selectedPatient?.name || ''
+                          });
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Seleccionar paciente</option>
+                        {patients.map(patient => (
+                          <option key={patient.id} value={patient.id}>
+                            {patient.name} ({patient.email})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <input
+                      type="hidden"
+                      value={newMessage.receiver_id = 'admin'}
+                      onChange={() => setNewMessage({
+                        ...newMessage,
+                        receiver_id: 'admin',
+                        receiver_name: 'Dr. Zerquera'
+                      })}
+                    />
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tipo de Mensaje
+                    </label>
+                    <select
+                      value={newMessage.message_type}
+                      onChange={(e) => setNewMessage({...newMessage, message_type: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="general">💬 General</option>
+                      <option value="appointment">📅 Sobre Cita</option>
+                      <option value="medical">🩺 Consulta Médica</option>
+                      <option value="reminder">⏰ Recordatorio</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Asunto
+                    </label>
+                    <input
+                      type="text"
+                      value={newMessage.subject}
+                      onChange={(e) => setNewMessage({...newMessage, subject: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="Asunto del mensaje"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Mensaje
+                    </label>
+                    <textarea
+                      value={newMessage.message}
+                      onChange={(e) => setNewMessage({...newMessage, message: e.target.value})}
+                      rows={6}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="Escriba su mensaje aquí..."
+                    />
+                  </div>
+
+                  <div className="flex space-x-4">
+                    <button
+                      onClick={sendMessage}
+                      disabled={loading || !newMessage.subject || !newMessage.message || (user?.role === 'admin' && !newMessage.receiver_id)}
+                      className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                    >
+                      {loading ? 'Enviando...' : '📤 Enviar Mensaje'}
+                    </button>
+                    <button
+                      onClick={() => setShowCompose(false)}
+                      className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : selectedMessage ? (
+              // Message Detail
+              <MessageDetailView 
+                message={selectedMessage} 
+                user={user} 
+                onReply={replyToMessage}
+                onClose={() => setSelectedMessage(null)}
+              />
+            ) : (
+              // No message selected
+              <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+                <div className="text-6xl mb-4">💬</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  Seleccione un mensaje
+                </h3>
+                <p className="text-gray-600">
+                  Elija una conversación de la lista para ver los detalles
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Message Detail Component
+const MessageDetailView = ({ message, user, onReply, onClose }) => {
+  const [replyText, setReplyText] = useState('');
+  const [showReply, setShowReply] = useState(false);
+
+  const handleReply = () => {
+    if (replyText.trim()) {
+      onReply(message.id, replyText);
+      setReplyText('');
+      setShowReply(false);
+    }
+  };
+
+  const getMessageTypeIcon = (type) => {
+    switch (type) {
+      case 'appointment': return '📅';
+      case 'medical': return '🩺';
+      case 'reminder': return '⏰';
+      default: return '💬';
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg">
+      <div className="p-6 border-b">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              {getMessageTypeIcon(message.message_type)} {message.subject}
+            </h3>
+            <div className="text-sm text-gray-600">
+              <p><strong>De:</strong> {message.sender_name}</p>
+              <p><strong>Para:</strong> {message.receiver_name}</p>
+              <p><strong>Fecha:</strong> {new Date(message.created_at).toLocaleDateString()} {new Date(message.created_at).toLocaleTimeString()}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-600 hover:text-gray-800"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <div className="p-6">
+        <div className="bg-gray-50 rounded-lg p-4 mb-6">
+          <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+            {message.message}
+          </p>
+        </div>
+
+        {!showReply ? (
+          <button
+            onClick={() => setShowReply(true)}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold"
+          >
+            📤 Responder
+          </button>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Su respuesta:
+              </label>
+              <textarea
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Escriba su respuesta aquí..."
+              />
+            </div>
+            <div className="flex space-x-4">
+              <button
+                onClick={handleReply}
+                disabled={!replyText.trim()}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              >
+                📤 Enviar Respuesta
+              </button>
+              <button
+                onClick={() => setShowReply(false)}
+                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Components
 const Header = ({ currentPage, setCurrentPage, user, logout }) => {
   // Function to force clear cache and notifications
