@@ -879,6 +879,7 @@ const Header = ({ currentPage, setCurrentPage, user, logout }) => {
       { id: 'inicio', label: 'Inicio', icon: '🏠' },
       { id: 'servicios', label: 'Servicios', icon: '⚕️' },
       { id: 'citas', label: 'Citas', icon: '📅' },
+      { id: 'mensajes', label: 'Mensajes', icon: '💬' },
       { id: 'doctor', label: 'Dr. Zerquera', icon: '👨‍⚕️' },
       { id: 'contacto', label: 'Contacto', icon: '📞' }
     ];
