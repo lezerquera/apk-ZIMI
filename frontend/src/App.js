@@ -3244,6 +3244,8 @@ function App() {
         return <ServicesPage setCurrentPage={setCurrentPage} user={user} />;
       case 'citas':
         return <AppointmentsPage setCurrentPage={setCurrentPage} user={user} />;
+      case 'mensajes':
+        return <MessagingPage setCurrentPage={setCurrentPage} user={user} />;
       case 'doctor':
         return <DoctorPage setCurrentPage={setCurrentPage} user={user} />;
       case 'contacto':
