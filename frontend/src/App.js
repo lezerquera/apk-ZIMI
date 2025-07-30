@@ -2634,6 +2634,21 @@ function App() {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Clean up any existing notifications on app start
+  useEffect(() => {
+    // Clear any existing notifications
+    if ('Notification' in window) {
+      // Close any existing notifications
+      if (typeof navigator.serviceWorker !== 'undefined') {
+        navigator.serviceWorker.ready.then(registration => {
+          registration.getNotifications().then(notifications => {
+            notifications.forEach(notification => notification.close());
+          });
+        });
+      }
+    }
+  }, []);
+
   // Check if user is already logged in (from localStorage)
   useEffect(() => {
     const savedUser = localStorage.getItem('zimi_user');
