@@ -1904,56 +1904,41 @@ const useNotificationSystem = (user) => {
   }, [user]);
 };
 const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
-  if (!isOpen) return null;
+  const [flyerData, setFlyerData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const flyerContent = {
-    acupuntura: {
-      title: "Tratamientos de Acupuntura",
-      image: "https://i.imgur.com/placeholder-acupuntura.jpg", // Usar imagen real del flyer
-      benefits: [
-        "Alivio del dolor crónico y agudo",
-        "Reducción del estrés y ansiedad", 
-        "Mejora de la calidad del sueño",
-        "Fortalecimiento del sistema inmunológico",
-        "Equilibrio energético del cuerpo",
-        "Tratamiento natural sin efectos secundarios"
-      ],
-      conditions: [
-        "Dolores de espalda y cuello",
-        "Migrañas y dolores de cabeza",
-        "Artritis y dolor articular",
-        "Problemas digestivos",
-        "Ansiedad y depresión",
-        "Insomnio",
-        "Alergias estacionales",
-        "Problemas circulatorios"
-      ],
-      process: [
-        "Consulta inicial y evaluación",
-        "Diagnóstico según medicina tradicional china",
-        "Inserción de agujas estériles en puntos específicos",
-        "Sesión de 30-45 minutos de relajación",
-        "Plan de tratamiento personalizado"
-      ],
-      offer: {
-        title: "OFERTA ESPECIAL",
-        description: "20 Sesiones de Acupuntura",
-        price: "$1500",
-        originalPrice: "$2000",
-        savings: "Ahorra $500"
-      },
-      safety: "Procedimiento completamente seguro con agujas estériles desechables",
-      duration: "45-60 minutos por sesión",
-      frequency: "1-2 sesiones por semana inicialmente",
-      location: "7700 N Kendall Dr. Unit 807, Kendall, FL 33156",
-      contact: {
-        website: "www.drzerquera.com",
-        phone: "(305) 274-4351"
-      }
+  useEffect(() => {
+    if (isOpen && service) {
+      fetchFlyerData();
+    }
+  }, [isOpen, service]);
+
+  const fetchFlyerData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API}/flyers/${service.id}`);
+      setFlyerData(response.data);
+    } catch (error) {
+      console.error('Error fetching flyer data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const content = flyerContent[service?.id] || flyerContent.acupuntura;
+  if (!isOpen || !service) return null;
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl p-8">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-center mt-4">Cargando información...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!flyerData) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1961,8 +1946,8 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
         {/* Header */}
         <div className="relative">
           <img 
-            src={content.image}
-            alt={content.title}
+            src={flyerData.image_url}
+            alt={flyerData.title}
             className="w-full h-64 object-cover rounded-t-xl"
           />
           <button
@@ -1972,7 +1957,7 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
             <span className="text-gray-600 text-xl">✕</span>
           </button>
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
-            <h2 className="text-3xl font-bold text-white">{content.title}</h2>
+            <h2 className="text-3xl font-bold text-white">{flyerData.title}</h2>
           </div>
         </div>
 
@@ -1985,7 +1970,7 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
                 <span className="mr-2">✨</span> Beneficios
               </h3>
               <ul className="space-y-2">
-                {content.benefits.map((benefit, index) => (
+                {flyerData.benefits?.map((benefit, index) => (
                   <li key={index} className="flex items-start">
                     <span className="text-green-500 mr-2 mt-1">✓</span>
                     <span className="text-gray-700">{benefit}</span>
@@ -2000,7 +1985,7 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
                 <span className="mr-2">🎯</span> Tratamos
               </h3>
               <ul className="space-y-2">
-                {content.conditions.map((condition, index) => (
+                {flyerData.conditions?.map((condition, index) => (
                   <li key={index} className="flex items-start">
                     <span className="text-blue-500 mr-2 mt-1">•</span>
                     <span className="text-gray-700">{condition}</span>
@@ -2016,7 +2001,7 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
               <span className="mr-2">🔄</span> Proceso de Tratamiento
             </h3>
             <div className="grid md:grid-cols-5 gap-4">
-              {content.process.map((step, index) => (
+              {flyerData.process?.map((step, index) => (
                 <div key={index} className="text-center">
                   <div className="bg-blue-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
                     <span className="text-blue-600 font-bold">{index + 1}</span>
@@ -2033,34 +2018,38 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
               <div>
                 <div className="text-2xl mb-2">⏱️</div>
                 <h4 className="font-semibold text-blue-900">Duración</h4>
-                <p className="text-gray-700">{content.duration}</p>
+                <p className="text-gray-700">{flyerData.duration}</p>
               </div>
               <div>
                 <div className="text-2xl mb-2">📅</div>
                 <h4 className="font-semibold text-blue-900">Frecuencia</h4>
-                <p className="text-gray-700">{content.frequency}</p>
+                <p className="text-gray-700">{flyerData.frequency}</p>
               </div>
               <div>
                 <div className="text-2xl mb-2">🛡️</div>
                 <h4 className="font-semibold text-blue-900">Seguridad</h4>
-                <p className="text-gray-700">{content.safety}</p>
+                <p className="text-gray-700">{flyerData.safety}</p>
               </div>
             </div>
           </div>
 
           {/* Special Offer */}
-          {content.offer && (
+          {flyerData.offer_title && (
             <div className="mt-8 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg p-6">
               <div className="text-center">
-                <h3 className="text-2xl font-bold mb-2">{content.offer.title}</h3>
+                <h3 className="text-2xl font-bold mb-2">{flyerData.offer_title}</h3>
                 <div className="flex justify-center items-center space-x-4 mb-4">
-                  <span className="text-3xl font-bold">{content.offer.price}</span>
-                  <span className="text-lg line-through opacity-75">{content.offer.originalPrice}</span>
-                  <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold">
-                    {content.offer.savings}
-                  </span>
+                  <span className="text-3xl font-bold">{flyerData.offer_price}</span>
+                  {flyerData.offer_original_price && (
+                    <span className="text-lg line-through opacity-75">{flyerData.offer_original_price}</span>
+                  )}
+                  {flyerData.offer_savings && (
+                    <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold">
+                      {flyerData.offer_savings}
+                    </span>
+                  )}
                 </div>
-                <p className="text-xl mb-4">{content.offer.description}</p>
+                <p className="text-xl mb-4">{flyerData.offer_description}</p>
                 <p className="text-sm opacity-90">¡Oferta limitada! Contacte ahora</p>
               </div>
             </div>
@@ -2073,14 +2062,14 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
                 <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
                   <span className="mr-2">📍</span> Ubicación
                 </h4>
-                <p className="text-gray-700">{content.location}</p>
+                <p className="text-gray-700">{flyerData.location}</p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
                   <span className="mr-2">📞</span> Contacto
                 </h4>
-                <p className="text-gray-700">{content.contact?.phone}</p>
-                <p className="text-blue-600">{content.contact?.website}</p>
+                <p className="text-gray-700">{flyerData.contact_phone}</p>
+                <p className="text-blue-600">{flyerData.contact_website}</p>
               </div>
             </div>
           </div>
@@ -2095,7 +2084,7 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
               }}
               className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 font-semibold text-lg transition-all"
             >
-              📅 Agendar Consulta de {service?.nombre || 'Acupuntura'}
+              📅 Agendar Consulta de {service?.nombre}
             </button>
             <p className="text-sm text-gray-600 mt-2">
               Consulta personalizada con el Dr. Pablo Zerquera
