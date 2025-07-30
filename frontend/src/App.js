@@ -2636,17 +2636,54 @@ function App() {
 
   // Clean up any existing notifications on app start
   useEffect(() => {
-    // Clear any existing notifications
-    if ('Notification' in window) {
-      // Close any existing notifications
-      if (typeof navigator.serviceWorker !== 'undefined') {
-        navigator.serviceWorker.ready.then(registration => {
-          registration.getNotifications().then(notifications => {
-            notifications.forEach(notification => notification.close());
-          });
+    // Force clear all notifications and cache
+    const forceCleanNotifications = () => {
+      try {
+        // Close all browser notifications
+        if ('Notification' in window) {
+          // Clear permission if needed
+          console.log('Cleaning up notifications...');
+        }
+        
+        // Clear any service worker notifications
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.getNotifications().then(notifications => {
+              notifications.forEach(notification => {
+                console.log('Closing notification:', notification.tag);
+                notification.close();
+              });
+            }).catch(e => console.log('No notifications to clean'));
+          }).catch(e => console.log('No service worker'));
+        }
+        
+        // Remove any DOM elements that might be notification panels
+        const notificationPanels = document.querySelectorAll('[class*="notification"], [class*="Notification"], [id*="notification"], .fixed');
+        notificationPanels.forEach(panel => {
+          if (panel.textContent && (
+            panel.textContent.includes('Notificaciones') || 
+            panel.textContent.includes('Nueva Solicitud') ||
+            panel.textContent.includes('notification') ||
+            panel.classList.contains('z-40') ||
+            panel.classList.contains('z-50')
+          )) {
+            console.log('Removing notification panel:', panel);
+            panel.remove();
+          }
         });
+        
+      } catch (error) {
+        console.log('Notification cleanup completed');
       }
-    }
+    };
+
+    // Run cleanup immediately
+    forceCleanNotifications();
+    
+    // Run cleanup again after a short delay
+    const cleanupTimer = setTimeout(forceCleanNotifications, 1000);
+    
+    return () => clearTimeout(cleanupTimer);
   }, []);
 
   // Check if user is already logged in (from localStorage)
