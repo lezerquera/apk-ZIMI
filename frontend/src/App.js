@@ -1995,6 +1995,43 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
             </div>
           </div>
 
+          {/* Special Offer */}
+          {content.offer && (
+            <div className="mt-8 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg p-6">
+              <div className="text-center">
+                <h3 className="text-2xl font-bold mb-2">{content.offer.title}</h3>
+                <div className="flex justify-center items-center space-x-4 mb-4">
+                  <span className="text-3xl font-bold">{content.offer.price}</span>
+                  <span className="text-lg line-through opacity-75">{content.offer.originalPrice}</span>
+                  <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold">
+                    {content.offer.savings}
+                  </span>
+                </div>
+                <p className="text-xl mb-4">{content.offer.description}</p>
+                <p className="text-sm opacity-90">¡Oferta limitada! Contacte ahora</p>
+              </div>
+            </div>
+          )}
+
+          {/* Location and Contact */}
+          <div className="mt-8 bg-gray-100 rounded-lg p-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+                  <span className="mr-2">📍</span> Ubicación
+                </h4>
+                <p className="text-gray-700">{content.location}</p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+                  <span className="mr-2">📞</span> Contacto
+                </h4>
+                <p className="text-gray-700">{content.contact?.phone}</p>
+                <p className="text-blue-600">{content.contact?.website}</p>
+              </div>
+            </div>
+          </div>
+
           {/* CTA */}
           <div className="mt-8 text-center">
             <button
