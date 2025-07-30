@@ -3215,6 +3215,7 @@ function App() {
   useEffect(() => {
     if (user && isAuthenticated) {
       localStorage.setItem('zimi_user', JSON.stringify(user));
+      setUiReady(true); // Ensure UI is ready when authenticated
     }
   }, [user, isAuthenticated]);
 
