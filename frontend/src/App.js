@@ -1404,6 +1404,8 @@ function App() {
         return <DoctorPage setCurrentPage={setCurrentPage} />;
       case 'contacto':
         return <ContactPage setCurrentPage={setCurrentPage} />;
+      case 'admin':
+        return <AdminPage setCurrentPage={setCurrentPage} />;
       default:
         return <HomePage setCurrentPage={setCurrentPage} />;
     }
