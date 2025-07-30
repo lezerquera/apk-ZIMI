@@ -1855,14 +1855,15 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
 
   const flyerContent = {
     acupuntura: {
-      title: "Acupuntura - Medicina Tradicional China",
-      image: "https://via.placeholder.com/800x600/1e40af/ffffff?text=Acupuntura+ZIMI", // Reemplazar con imagen real
+      title: "Tratamientos de Acupuntura",
+      image: "https://i.imgur.com/placeholder-acupuntura.jpg", // Usar imagen real del flyer
       benefits: [
         "Alivio del dolor crónico y agudo",
         "Reducción del estrés y ansiedad", 
         "Mejora de la calidad del sueño",
         "Fortalecimiento del sistema inmunológico",
-        "Equilibrio energético del cuerpo"
+        "Equilibrio energético del cuerpo",
+        "Tratamiento natural sin efectos secundarios"
       ],
       conditions: [
         "Dolores de espalda y cuello",
@@ -1871,7 +1872,8 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
         "Problemas digestivos",
         "Ansiedad y depresión",
         "Insomnio",
-        "Alergias estacionales"
+        "Alergias estacionales",
+        "Problemas circulatorios"
       ],
       process: [
         "Consulta inicial y evaluación",
@@ -1880,9 +1882,21 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
         "Sesión de 30-45 minutos de relajación",
         "Plan de tratamiento personalizado"
       ],
+      offer: {
+        title: "OFERTA ESPECIAL",
+        description: "20 Sesiones de Acupuntura",
+        price: "$1500",
+        originalPrice: "$2000",
+        savings: "Ahorra $500"
+      },
       safety: "Procedimiento completamente seguro con agujas estériles desechables",
       duration: "45-60 minutos por sesión",
-      frequency: "1-2 sesiones por semana inicialmente"
+      frequency: "1-2 sesiones por semana inicialmente",
+      location: "7700 N Kendall Dr. Unit 807, Kendall, FL 33156",
+      contact: {
+        website: "www.drzerquera.com",
+        phone: "(305) 274-4351"
+      }
     }
   };
 
