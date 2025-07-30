@@ -2660,6 +2660,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState('login'); // Start with login
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [uiReady, setUiReady] = useState(false);
 
   // Clean up any existing notifications on app start
   useEffect(() => {
@@ -2710,7 +2711,13 @@ function App() {
     // Run cleanup again after a short delay
     const cleanupTimer = setTimeout(forceCleanNotifications, 1000);
     
-    return () => clearTimeout(cleanupTimer);
+    // Mark UI as ready after cleanup
+    const uiTimer = setTimeout(() => setUiReady(true), 500);
+    
+    return () => {
+      clearTimeout(cleanupTimer);
+      clearTimeout(uiTimer);
+    };
   }, []);
 
   // Check if user is already logged in (from localStorage)
@@ -2725,6 +2732,8 @@ function App() {
       } catch (error) {
         localStorage.removeItem('zimi_user');
       }
+    } else {
+      setUiReady(true);
     }
   }, []);
 
