@@ -1,0 +1,78 @@
+{
+  "short_name": "ZIMI",
+  "name": "Zerquera Integrative Medical Institute",
+  "description": "Aplicación móvil del Instituto de Medicina Integrativa del Dr. Pablo Zerquera. Agenda citas, consulta servicios y comunícate directamente con nuestro equipo médico.",
+  "icons": [
+    {
+      "src": "https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1e40af",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "categories": ["medical", "health", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Agendar Cita",
+      "short_name": "Cita",
+      "description": "Solicitar una nueva cita médica",
+      "url": "/?page=citas",
+      "icons": [
+        {
+          "src": "/icon-calendar.png", 
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Servicios",
+      "short_name": "Servicios",
+      "description": "Ver todos los servicios médicos",
+      "url": "/?page=servicios", 
+      "icons": [
+        {
+          "src": "/icon-medical.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Contacto",
+      "short_name": "Contacto",
+      "description": "Información de contacto y ubicación",
+      "url": "/?page=contacto",
+      "icons": [
+        {
+          "src": "/icon-phone.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
