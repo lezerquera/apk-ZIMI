@@ -1912,6 +1912,11 @@ const useNotificationSystem = (user) => {
     };
   }, [user]);
 };
+// Simple Notification Hook Component  
+const NotificationHook = ({ user }) => {
+  useNotificationSystem(user);
+  return null; // This component doesn't render anything visible
+};
 const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
   const [flyerData, setFlyerData] = useState(null);
   const [loading, setLoading] = useState(false);
