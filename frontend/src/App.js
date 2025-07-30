@@ -641,7 +641,7 @@ const AppointmentsPage = ({ setCurrentPage }) => {
   );
 };
 
-const DoctorPage = () => {
+const DoctorPage = ({ setCurrentPage }) => {
   const [doctorInfo, setDoctorInfo] = useState(null);
   const [team, setTeam] = useState([]);
 
