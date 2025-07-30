@@ -25,6 +25,32 @@ app = FastAPI(title="ZIMI - Zerquera Integrative Medical Institute API")
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Message System Models
+class Message(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    sender_id: str  # patient_id or 'admin'
+    receiver_id: str  # patient_id or 'admin'
+    sender_name: str
+    receiver_name: str
+    subject: str
+    message: str
+    is_read: bool = False
+    message_type: str = "general"  # general, appointment, medical, reminder
+    appointment_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    read_at: Optional[datetime] = None
+
+class MessageCreate(BaseModel):
+    receiver_id: str
+    receiver_name: str
+    subject: str
+    message: str
+    message_type: str = "general"
+    appointment_id: Optional[str] = None
+
+class MessageReply(BaseModel):
+    message: str
+
 # Flyer Management Models
 class ServiceFlyer(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
