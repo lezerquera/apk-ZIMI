@@ -72,7 +72,7 @@ USA
 
 ### 📞 **Contacto Directo**
 - **Teléfono**: +1 305 274 4351
-- **WhatsApp**: +1 954 669 8708
+- **WhatsApp**: +1 305 274 4351
 - **Email**: drzerquera@aol.com
 
 ### 🕒 **Horarios**
