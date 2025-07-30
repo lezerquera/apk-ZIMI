@@ -248,6 +248,178 @@ async def notify_new_appointment(appointment_id: str):
     # This would trigger push notification to admin
     return {"message": "Notificación enviada al administrador"}
 
+# Flyer management routes (Admin only)
+@api_router.get("/flyers")
+async def get_all_flyers():
+    flyers = await db.flyers.find().to_list(100)
+    return [ServiceFlyer(**flyer) for flyer in flyers]
+
+@api_router.get("/flyers/{service_id}")
+async def get_service_flyer(service_id: str):
+    flyer = await db.flyers.find_one({"service_id": service_id})
+    if not flyer:
+        # Return default flyer structure
+        return create_default_flyer(service_id)
+    return ServiceFlyer(**flyer)
+
+@api_router.post("/flyers", response_model=ServiceFlyer)
+async def create_service_flyer(flyer_data: FlyerCreate):
+    # Check if flyer already exists for this service
+    existing = await db.flyers.find_one({"service_id": flyer_data.service_id})
+    if existing:
+        raise HTTPException(status_code=400, detail="Flyer ya existe para este servicio")
+    
+    flyer_obj = ServiceFlyer(**flyer_data.dict())
+    await db.flyers.insert_one(flyer_obj.dict())
+    return flyer_obj
+
+@api_router.put("/flyers/{service_id}")
+async def update_service_flyer(service_id: str, flyer_data: FlyerUpdate):
+    update_data = {k: v for k, v in flyer_data.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow()
+    
+    result = await db.flyers.update_one(
+        {"service_id": service_id},
+        {"$set": update_data},
+        upsert=True
+    )
+    
+    if result.matched_count == 0 and result.upserted_id is None:
+        raise HTTPException(status_code=404, detail="Error actualizando flyer")
+    
+    return {"message": "Flyer actualizado exitosamente"}
+
+@api_router.delete("/flyers/{service_id}")
+async def delete_service_flyer(service_id: str):
+    result = await db.flyers.delete_one({"service_id": service_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Flyer no encontrado")
+    return {"message": "Flyer eliminado exitosamente"}
+
+def create_default_flyer(service_id: str):
+    """Create default flyer content for each service"""
+    default_flyers = {
+        "acupuntura": {
+            "title": "Tratamientos de Acupuntura",
+            "image_url": "https://via.placeholder.com/800x600/1e40af/ffffff?text=Acupuntura+ZIMI",
+            "benefits": [
+                "Alivio del dolor crónico y agudo",
+                "Reducción del estrés y ansiedad",
+                "Mejora de la calidad del sueño",
+                "Fortalecimiento del sistema inmunológico",
+                "Equilibrio energético del cuerpo"
+            ],
+            "conditions": [
+                "Dolores de espalda y cuello",
+                "Migrañas y dolores de cabeza",
+                "Artritis y dolor articular",
+                "Problemas digestivos",
+                "Ansiedad y depresión",
+                "Insomnio"
+            ],
+            "process": [
+                "Consulta inicial y evaluación",
+                "Diagnóstico según medicina tradicional china",
+                "Inserción de agujas estériles en puntos específicos",
+                "Sesión de 30-45 minutos de relajación",
+                "Plan de tratamiento personalizado"
+            ],
+            "offer_title": "OFERTA ESPECIAL",
+            "offer_description": "20 Sesiones de Acupuntura",
+            "offer_price": "$1500",
+            "offer_original_price": "$2000",
+            "offer_savings": "Ahorra $500"
+        },
+        "medicina_oriental": {
+            "title": "Medicina Oriental Tradicional",
+            "image_url": "https://via.placeholder.com/800x600/059669/ffffff?text=Medicina+Oriental",
+            "benefits": [
+                "Enfoque holístico del cuerpo",
+                "Tratamiento de la causa raíz",
+                "Técnicas milenarias probadas",
+                "Sin efectos secundarios",
+                "Mejora del equilibrio interno"
+            ],
+            "conditions": [
+                "Problemas digestivos crónicos",
+                "Desequilibrios hormonales",
+                "Fatiga crónica",
+                "Problemas respiratorios",
+                "Trastornos del sueño"
+            ],
+            "process": [
+                "Evaluación según principios TCM",
+                "Análisis de pulso y lengua",
+                "Diagnóstico energético",
+                "Plan de tratamiento integral",
+                "Seguimiento personalizado"
+            ]
+        },
+        "medicina_funcional": {
+            "title": "Medicina Funcional Personalizada",
+            "image_url": "https://via.placeholder.com/800x600/7c3aed/ffffff?text=Medicina+Funcional",
+            "benefits": [
+                "Enfoque personalizado único",
+                "Identificación de causas raíz",
+                "Prevención de enfermedades",
+                "Optimización de la salud",
+                "Tratamiento integral"
+            ],
+            "conditions": [
+                "Enfermedades autoinmunes",
+                "Síndrome metabólico",
+                "Problemas hormonales",
+                "Inflamación crónica",
+                "Alergias alimentarias"
+            ],
+            "process": [
+                "Evaluación funcional completa",
+                "Análisis de laboratorio avanzado",
+                "Identificación de desequilibrios",
+                "Protocolo de tratamiento personalizado",
+                "Monitoreo continuo de progreso"
+            ]
+        },
+        "fisioterapia": {
+            "title": "Fisioterapia Especializada",
+            "image_url": "https://via.placeholder.com/800x600/dc2626/ffffff?text=Fisioterapia",
+            "benefits": [
+                "Recuperación de movilidad",
+                "Fortalecimiento muscular",
+                "Alivio del dolor",
+                "Prevención de lesiones",
+                "Mejora de la postura"
+            ],
+            "conditions": [
+                "Lesiones deportivas",
+                "Dolor de espalda",
+                "Rehabilitación post-quirúrgica",
+                "Problemas de postura",
+                "Artritis y rigidez articular"
+            ],
+            "process": [
+                "Evaluación física completa",
+                "Análisis de movimiento",
+                "Diseño de plan de ejercicios",
+                "Terapia manual especializada",
+                "Programa de mantenimiento"
+            ]
+        }
+    }
+    
+    default_data = default_flyers.get(service_id, default_flyers["acupuntura"])
+    
+    return {
+        "service_id": service_id,
+        "safety": "Procedimiento completamente seguro realizado por profesionales certificados",
+        "duration": "45-60 minutos por sesión",
+        "frequency": "1-2 sesiones por semana inicialmente",
+        "location": "7700 N Kendall Dr. Unit 807, Kendall, FL 33156",
+        "contact_phone": "(305) 274-4351",
+        "contact_website": "www.drzerquera.com",
+        **default_data
+    }
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
