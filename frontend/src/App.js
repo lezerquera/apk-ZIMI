@@ -1172,7 +1172,7 @@ const HomePage = ({ setCurrentPage }) => {
             <a href="tel:+13052744351" className="text-blue-600 font-semibold">
               📞 +1 305 274 4351
             </a>
-            <a href="https://wa.me/19546698708" className="text-green-600 font-semibold">
+            <a href="https://wa.me/13052744351" className="text-green-600 font-semibold">
               💬 WhatsApp
             </a>
           </div>
