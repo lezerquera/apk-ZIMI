@@ -1849,82 +1849,18 @@ const ContactPage = ({ setCurrentPage }) => {
   );
 };
 
-// Notification System Component
-const NotificationSystem = ({ user }) => {
-  const [notificationSettings, setNotificationSettings] = useState({
-    enabled: true,
-    sound: 'chime', // Default sound
-    volume: 0.7
-  });
-  const [notifications, setNotifications] = useState([]);
-
-  // Available notification sounds
-  const soundOptions = [
-    { id: 'classic', name: '🔔 Clásico', file: 'notification.mp3' },
-    { id: 'chime', name: '🎵 Suave', file: 'chime.mp3' },
-    { id: 'alert', name: '📢 Alerta', file: 'alert.mp3' },
-    { id: 'melody', name: '🎶 Melodía', file: 'melody.mp3' },
-    { id: 'urgent', name: '⚡ Urgente', file: 'urgent.mp3' }
-  ];
-
-  // Play notification sound
-  const playNotificationSound = (soundType = notificationSettings.sound) => {
-    if (!notificationSettings.enabled) return;
-    
-    try {
-      // Create audio context for notification sounds
-      const audio = new Audio(`/sounds/${soundType}.mp3`);
-      audio.volume = notificationSettings.volume;
-      audio.play().catch(e => {
-        // Fallback to system notification sound
-        console.log('Playing system notification');
-      });
-    } catch (error) {
-      console.log('Audio not available, using visual notification only');
-    }
-  };
-
-  // Show browser notification
-  const showBrowserNotification = (title, body, data = {}) => {
-    if (!('Notification' in window)) return;
-
-    if (Notification.permission === 'granted') {
-      const notification = new Notification(title, {
-        body,
-        icon: 'https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png',
-        badge: 'https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png',
-        tag: 'zimi-notification',
-        data,
-        requireInteraction: true
-      });
-
-      // Play sound
-      playNotificationSound();
-
-      // Auto close after 10 seconds
-      setTimeout(() => notification.close(), 10000);
-      
-      return notification;
-    }
-  };
-
-  // Request notification permission
-  const requestNotificationPermission = async () => {
-    if (!('Notification' in window)) {
-      alert('Este navegador no soporta notificaciones');
-      return false;
-    }
-
-    const permission = await Notification.requestPermission();
-    return permission === 'granted';
-  };
-
-  // Check for new appointments periodically (only for admin)
+// Simple Notification System (Background only)
+const useNotificationSystem = (user) => {
   useEffect(() => {
     if (user?.role !== 'admin') return;
 
     let interval;
     let lastCheck = Date.now();
+
+    // Request notification permission quietly
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
 
     const checkForNewAppointments = async () => {
       try {
@@ -1942,20 +1878,16 @@ const NotificationSystem = ({ user }) => {
             const title = '🏥 Nueva Solicitud de Cita - ZIMI';
             const body = `${apt.patient_name} solicita ${apt.service_type.replace(/_/g, ' ')} para ${apt.fecha_solicitada}`;
             
-            showBrowserNotification(title, body, { appointmentId: apt.id });
-            
-            // Add to notifications list
-            setNotifications(prev => [{
-              id: apt.id,
-              type: 'appointment',
-              title,
-              body,
-              timestamp: new Date(),
-              read: false
-            }, ...prev.slice(0, 9)]); // Keep only last 10
+            // Simple browser notification
+            if (Notification.permission === 'granted') {
+              new Notification(title, {
+                body,
+                icon: 'https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png',
+                tag: 'zimi-notification'
+              });
+            }
           });
 
-          // Update last check time
           lastCheck = Date.now();
         }
       } catch (error) {
@@ -1963,140 +1895,13 @@ const NotificationSystem = ({ user }) => {
       }
     };
 
-    // Check every 30 seconds
-    interval = setInterval(checkForNewAppointments, 30000);
+    // Check every 60 seconds
+    interval = setInterval(checkForNewAppointments, 60000);
     
-    // Initial check
-    checkForNewAppointments();
-
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [user, notificationSettings]);
-
-  // Initialize notifications permission on component mount
-  useEffect(() => {
-    if (user?.role === 'admin') {
-      requestNotificationPermission();
-    }
   }, [user]);
-
-  // Test notification function
-  const testNotification = () => {
-    const title = '🧪 Prueba de Notificación ZIMI';
-    const body = 'Las notificaciones están funcionando correctamente';
-    showBrowserNotification(title, body);
-  };
-
-  // Only render for admin users
-  if (user?.role !== 'admin') return null;
-
-  return (
-    <div className="fixed top-20 right-4 z-40 max-w-sm">
-      {/* Notification Settings Panel */}
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 mb-4">
-        <div className="p-4 border-b">
-          <h3 className="font-semibold text-gray-800 flex items-center">
-            <span className="mr-2">🔔</span>
-            Notificaciones Admin
-          </h3>
-        </div>
-        
-        <div className="p-4 space-y-4">
-          {/* Enable/Disable */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-700">Activar notificaciones</span>
-            <button
-              onClick={() => setNotificationSettings({
-                ...notificationSettings,
-                enabled: !notificationSettings.enabled
-              })}
-              className={`w-12 h-6 rounded-full flex items-center transition-all ${
-                notificationSettings.enabled ? 'bg-green-500' : 'bg-gray-300'
-              }`}
-            >
-              <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
-                notificationSettings.enabled ? 'translate-x-6' : 'translate-x-1'
-              }`} />
-            </button>
-          </div>
-
-          {/* Sound Selection */}
-          <div>
-            <label className="block text-sm text-gray-700 mb-2">Sonido de notificación</label>
-            <select
-              value={notificationSettings.sound}
-              onChange={(e) => setNotificationSettings({
-                ...notificationSettings,
-                sound: e.target.value
-              })}
-              className="w-full text-sm border border-gray-300 rounded px-2 py-1"
-            >
-              {soundOptions.map(option => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Volume Control */}
-          <div>
-            <label className="block text-sm text-gray-700 mb-2">
-              Volumen: {Math.round(notificationSettings.volume * 100)}%
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={notificationSettings.volume}
-              onChange={(e) => setNotificationSettings({
-                ...notificationSettings,
-                volume: parseFloat(e.target.value)
-              })}
-              className="w-full"
-            />
-          </div>
-
-          {/* Test Button */}
-          <button
-            onClick={testNotification}
-            className="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700 transition-all"
-          >
-            🧪 Probar Notificación
-          </button>
-        </div>
-      </div>
-
-      {/* Recent Notifications */}
-      {notifications.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200">
-          <div className="p-3 border-b bg-gray-50">
-            <h4 className="text-sm font-semibold text-gray-800">
-              Notificaciones Recientes ({notifications.length})
-            </h4>
-          </div>
-          <div className="max-h-64 overflow-y-auto">
-            {notifications.slice(0, 5).map(notification => (
-              <div key={notification.id} className="p-3 border-b border-gray-100 hover:bg-gray-50">
-                <div className="flex items-start space-x-2">
-                  <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-800">{notification.title}</p>
-                    <p className="text-xs text-gray-600 mt-1">{notification.body}</p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {notification.timestamp.toLocaleDateString()} {notification.timestamp.toLocaleTimeString()}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
 };
 const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
   if (!isOpen) return null;
