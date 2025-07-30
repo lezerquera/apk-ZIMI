@@ -387,6 +387,17 @@ async def create_appointment(appointment_data: AppointmentCreate):
     # Save to database
     await db.appointments.insert_one(appointment_obj.dict())
     
+    # Trigger admin notification
+    try:
+        # This would send real-time notification to admin
+        logger.info(f"New appointment created: {appointment_obj.id} for patient {appointment_obj.patient_name}")
+        
+        # In production, you could send email, SMS, or push notification here
+        # await send_admin_notification(appointment_obj)
+        
+    except Exception as e:
+        logger.error(f"Failed to send admin notification: {e}")
+    
     return appointment_obj
 
 @api_router.get("/appointments", response_model=List[Appointment])
