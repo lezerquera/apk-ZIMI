@@ -47,6 +47,73 @@
         <link rel="dns-prefetch" href="https://api.whatsapp.com" />
         
         <title>ZIMI - Dr. Pablo Zerquera | Medicina Integrativa</title>
+        
+        <!-- Domain-specific meta tag configuration -->
+        <script>
+            // Set canonical URL dynamically based on current domain
+            document.addEventListener('DOMContentLoaded', function() {
+                const canonicalUrl = document.getElementById('canonical-url');
+                if (canonicalUrl) {
+                    canonicalUrl.href = window.location.origin + window.location.pathname;
+                }
+                
+                // Update Open Graph URL
+                const ogUrlMeta = document.querySelector('meta[property="og:url"]');
+                if (!ogUrlMeta) {
+                    const newOgUrl = document.createElement('meta');
+                    newOgUrl.setAttribute('property', 'og:url');
+                    newOgUrl.setAttribute('content', window.location.origin);
+                    document.head.appendChild(newOgUrl);
+                }
+                
+                // Set up PWA installation detection
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', function() {
+                        navigator.serviceWorker.register('/sw.js')
+                            .then(function(registration) {
+                                console.log('ZIMI SW registered successfully:', registration.scope);
+                            })
+                            .catch(function(error) {
+                                console.log('ZIMI SW registration failed:', error);
+                            });
+                    });
+                }
+                
+                // PWA install prompt handling
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', function(e) {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    
+                    // Show custom install button if desired
+                    const installButton = document.getElementById('pwa-install-button');
+                    if (installButton) {
+                        installButton.style.display = 'block';
+                        installButton.addEventListener('click', function() {
+                            deferredPrompt.prompt();
+                            deferredPrompt.userChoice.then(function(choiceResult) {
+                                if (choiceResult.outcome === 'accepted') {
+                                    console.log('User accepted the PWA install prompt');
+                                } else {
+                                    console.log('User dismissed the PWA install prompt');
+                                }
+                                deferredPrompt = null;
+                            });
+                        });
+                    }
+                });
+                
+                // Handle successful PWA installation
+                window.addEventListener('appinstalled', function(evt) {
+                    console.log('ZIMI PWA was installed successfully');
+                    // Hide install button if it exists
+                    const installButton = document.getElementById('pwa-install-button');
+                    if (installButton) {
+                        installButton.style.display = 'none';
+                    }
+                });
+            });
+        </script>
     </head>
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
