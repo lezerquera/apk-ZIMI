@@ -1,0 +1,92 @@
+# Docker Compose for Production Deployment with Custom Domain
+version: '3.8'
+
+services:
+  # NGINX Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/ssl/certs
+      - ../frontend/build:/var/www/zimi-app/build
+      - ./.well-known:/var/www/zimi-app/.well-known
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - zimi-network
+    restart: unless-stopped
+    environment:
+      - NGINX_HOST=app.drzerquera.com
+      - NGINX_PORT=443
+
+  # Backend Service
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - DB_NAME=zimi_production
+      - ENVIRONMENT=production
+      - DOMAIN=app.drzerquera.com
+    volumes:
+      - ../backend:/app
+    depends_on:
+      - mongo
+    networks:
+      - zimi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Build (for static files)
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_BACKEND_URL=https://app.drzerquera.com
+        - REACT_APP_DOMAIN=app.drzerquera.com
+    volumes:
+      - ../frontend/build:/app/build
+    networks:
+      - zimi-network
+
+  # MongoDB
+  mongo:
+    image: mongo:5.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - zimi-network
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_DATABASE=zimi_production
+
+  # SSL Certificate Management (Let's Encrypt)
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./ssl:/etc/letsencrypt
+      - ./.well-known:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email admin@drzerquera.com --agree-tos --no-eff-email -d app.drzerquera.com
+    networks:
+      - zimi-network
+
+volumes:
+  mongo_data:
+
+networks:
+  zimi-network:
+    driver: bridge
