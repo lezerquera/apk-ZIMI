@@ -1769,6 +1769,160 @@ const ContactPage = ({ setCurrentPage }) => {
   );
 };
 
+// Service Flyer Component
+const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  const flyerContent = {
+    acupuntura: {
+      title: "Acupuntura - Medicina Tradicional China",
+      image: "https://via.placeholder.com/800x600/1e40af/ffffff?text=Acupuntura+ZIMI", // Reemplazar con imagen real
+      benefits: [
+        "Alivio del dolor crónico y agudo",
+        "Reducción del estrés y ansiedad", 
+        "Mejora de la calidad del sueño",
+        "Fortalecimiento del sistema inmunológico",
+        "Equilibrio energético del cuerpo"
+      ],
+      conditions: [
+        "Dolores de espalda y cuello",
+        "Migrañas y dolores de cabeza",
+        "Artritis y dolor articular",
+        "Problemas digestivos",
+        "Ansiedad y depresión",
+        "Insomnio",
+        "Alergias estacionales"
+      ],
+      process: [
+        "Consulta inicial y evaluación",
+        "Diagnóstico según medicina tradicional china",
+        "Inserción de agujas estériles en puntos específicos",
+        "Sesión de 30-45 minutos de relajación",
+        "Plan de tratamiento personalizado"
+      ],
+      safety: "Procedimiento completamente seguro con agujas estériles desechables",
+      duration: "45-60 minutos por sesión",
+      frequency: "1-2 sesiones por semana inicialmente"
+    }
+  };
+
+  const content = flyerContent[service?.id] || flyerContent.acupuntura;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="relative">
+          <img 
+            src={content.image}
+            alt={content.title}
+            className="w-full h-64 object-cover rounded-t-xl"
+          />
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all"
+          >
+            <span className="text-gray-600 text-xl">✕</span>
+          </button>
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
+            <h2 className="text-3xl font-bold text-white">{content.title}</h2>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Benefits */}
+            <div>
+              <h3 className="text-2xl font-bold text-blue-900 mb-4 flex items-center">
+                <span className="mr-2">✨</span> Beneficios
+              </h3>
+              <ul className="space-y-2">
+                {content.benefits.map((benefit, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-green-500 mr-2 mt-1">✓</span>
+                    <span className="text-gray-700">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Conditions */}
+            <div>
+              <h3 className="text-2xl font-bold text-blue-900 mb-4 flex items-center">
+                <span className="mr-2">🎯</span> Tratamos
+              </h3>
+              <ul className="space-y-2">
+                {content.conditions.map((condition, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-blue-500 mr-2 mt-1">•</span>
+                    <span className="text-gray-700">{condition}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Process */}
+          <div className="mt-8">
+            <h3 className="text-2xl font-bold text-blue-900 mb-4 flex items-center">
+              <span className="mr-2">🔄</span> Proceso de Tratamiento
+            </h3>
+            <div className="grid md:grid-cols-5 gap-4">
+              {content.process.map((step, index) => (
+                <div key={index} className="text-center">
+                  <div className="bg-blue-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
+                    <span className="text-blue-600 font-bold">{index + 1}</span>
+                  </div>
+                  <p className="text-sm text-gray-700">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Treatment Info */}
+          <div className="mt-8 bg-blue-50 rounded-lg p-6">
+            <div className="grid md:grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl mb-2">⏱️</div>
+                <h4 className="font-semibold text-blue-900">Duración</h4>
+                <p className="text-gray-700">{content.duration}</p>
+              </div>
+              <div>
+                <div className="text-2xl mb-2">📅</div>
+                <h4 className="font-semibold text-blue-900">Frecuencia</h4>
+                <p className="text-gray-700">{content.frequency}</p>
+              </div>
+              <div>
+                <div className="text-2xl mb-2">🛡️</div>
+                <h4 className="font-semibold text-blue-900">Seguridad</h4>
+                <p className="text-gray-700">{content.safety}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => {
+                onClose();
+                // This would trigger navigation to appointments
+                window.location.hash = 'citas';
+              }}
+              className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 font-semibold text-lg transition-all"
+            >
+              📅 Agendar Consulta de {service?.nombre || 'Acupuntura'}
+            </button>
+            <p className="text-sm text-gray-600 mt-2">
+              Consulta personalizada con el Dr. Pablo Zerquera
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component
 function App() {
   const [currentPage, setCurrentPage] = useState('inicio');
