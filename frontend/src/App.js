@@ -1953,34 +1953,104 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
 
 // Main App Component
 function App() {
-  const [currentPage, setCurrentPage] = useState('inicio');
+  const [currentPage, setCurrentPage] = useState('login'); // Start with login
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check if user is already logged in (from localStorage)
+  useEffect(() => {
+    const savedUser = localStorage.getItem('zimi_user');
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
+        setIsAuthenticated(true);
+        setCurrentPage('inicio');
+      } catch (error) {
+        localStorage.removeItem('zimi_user');
+      }
+    }
+  }, []);
+
+  // Save user to localStorage when authenticated
+  useEffect(() => {
+    if (user && isAuthenticated) {
+      localStorage.setItem('zimi_user', JSON.stringify(user));
+    }
+  }, [user, isAuthenticated]);
+
+  const logout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    setCurrentPage('login');
+    localStorage.removeItem('zimi_user');
+  };
 
   const renderPage = () => {
+    // Authentication required pages
+    if (!isAuthenticated) {
+      switch (currentPage) {
+        case 'login':
+          return <LoginPage setCurrentPage={setCurrentPage} setUser={setUser} setIsAuthenticated={setIsAuthenticated} />;
+        case 'register':
+          return <RegisterPage setCurrentPage={setCurrentPage} setUser={setUser} setIsAuthenticated={setIsAuthenticated} />;
+        default:
+          return <LoginPage setCurrentPage={setCurrentPage} setUser={setUser} setIsAuthenticated={setIsAuthenticated} />;
+      }
+    }
+
+    // Authenticated pages
     switch (currentPage) {
       case 'inicio':
-        return <HomePage setCurrentPage={setCurrentPage} />;
+        return <HomePage setCurrentPage={setCurrentPage} user={user} />;
       case 'servicios':
-        return <ServicesPage setCurrentPage={setCurrentPage} />;
+        return <ServicesPage setCurrentPage={setCurrentPage} user={user} />;
       case 'citas':
-        return <AppointmentsPage setCurrentPage={setCurrentPage} />;
+        return <AppointmentsPage setCurrentPage={setCurrentPage} user={user} />;
       case 'doctor':
-        return <DoctorPage setCurrentPage={setCurrentPage} />;
+        return <DoctorPage setCurrentPage={setCurrentPage} user={user} />;
       case 'contacto':
-        return <ContactPage setCurrentPage={setCurrentPage} />;
+        return <ContactPage setCurrentPage={setCurrentPage} user={user} />;
       case 'admin':
-        return <AdminPage setCurrentPage={setCurrentPage} />;
+        // Restrict admin access to admin users only
+        if (user?.role === 'admin') {
+          return <AdminPage setCurrentPage={setCurrentPage} user={user} />;
+        } else {
+          // Redirect non-admin users back to home
+          setCurrentPage('inicio');
+          return <HomePage setCurrentPage={setCurrentPage} user={user} />;
+        }
+      case 'profile':
+        return <PatientProfilePage setCurrentPage={setCurrentPage} user={user} />;
       default:
-        return <HomePage setCurrentPage={setCurrentPage} />;
+        return <HomePage setCurrentPage={setCurrentPage} user={user} />;
     }
   };
 
+  // Don't render header for login/register pages
+  const showHeader = isAuthenticated && !['login', 'register'].includes(currentPage);
+  const showMobileNav = isAuthenticated && !['login', 'register'].includes(currentPage);
+
   return (
     <div className="App min-h-screen bg-gray-50">
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      <main className="pb-20 md:pb-0">
+      {showHeader && (
+        <Header 
+          currentPage={currentPage} 
+          setCurrentPage={setCurrentPage} 
+          user={user}
+          logout={logout}
+        />
+      )}
+      <main className={showMobileNav ? "pb-20 md:pb-0" : ""}>
         {renderPage()}
       </main>
-      <MobileNav currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      {showMobileNav && (
+        <MobileNav 
+          currentPage={currentPage} 
+          setCurrentPage={setCurrentPage} 
+          user={user}
+        />
+      )}
     </div>
   );
 }
