@@ -25,6 +25,66 @@ app = FastAPI(title="ZIMI - Zerquera Integrative Medical Institute API")
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Flyer Management Models
+class ServiceFlyer(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    service_id: str
+    title: str
+    image_url: str
+    benefits: List[str]
+    conditions: List[str]
+    process: List[str]
+    safety: str
+    duration: str
+    frequency: str
+    location: str
+    contact_phone: str
+    contact_website: str
+    offer_title: Optional[str] = None
+    offer_description: Optional[str] = None
+    offer_price: Optional[str] = None
+    offer_original_price: Optional[str] = None
+    offer_savings: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class FlyerCreate(BaseModel):
+    service_id: str
+    title: str
+    image_url: str
+    benefits: List[str]
+    conditions: List[str]
+    process: List[str]
+    safety: str
+    duration: str
+    frequency: str
+    location: str
+    contact_phone: str
+    contact_website: str
+    offer_title: Optional[str] = None
+    offer_description: Optional[str] = None
+    offer_price: Optional[str] = None
+    offer_original_price: Optional[str] = None
+    offer_savings: Optional[str] = None
+
+class FlyerUpdate(BaseModel):
+    title: Optional[str] = None
+    image_url: Optional[str] = None
+    benefits: Optional[List[str]] = None
+    conditions: Optional[List[str]] = None
+    process: Optional[List[str]] = None
+    safety: Optional[str] = None
+    duration: Optional[str] = None
+    frequency: Optional[str] = None
+    location: Optional[str] = None
+    contact_phone: Optional[str] = None
+    contact_website: Optional[str] = None
+    offer_title: Optional[str] = None
+    offer_description: Optional[str] = None
+    offer_price: Optional[str] = None
+    offer_original_price: Optional[str] = None
+    offer_savings: Optional[str] = None
+
 # Enums
 class AppointmentType(str, Enum):
     PRESENCIAL = "presencial"
