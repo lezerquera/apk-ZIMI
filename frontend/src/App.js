@@ -1132,17 +1132,17 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'inicio':
-        return <HomePage />;
+        return <HomePage setCurrentPage={setCurrentPage} />;
       case 'servicios':
-        return <ServicesPage />;
+        return <ServicesPage setCurrentPage={setCurrentPage} />;
       case 'citas':
-        return <AppointmentsPage />;
+        return <AppointmentsPage setCurrentPage={setCurrentPage} />;
       case 'doctor':
-        return <DoctorPage />;
+        return <DoctorPage setCurrentPage={setCurrentPage} />;
       case 'contacto':
-        return <ContactPage />;
+        return <ContactPage setCurrentPage={setCurrentPage} />;
       default:
-        return <HomePage />;
+        return <HomePage setCurrentPage={setCurrentPage} />;
     }
   };
 
