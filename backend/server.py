@@ -114,6 +114,81 @@ class ContactCreate(BaseModel):
     mensaje: str
 
 # Routes
+# Auth routes
+@api_router.post("/auth/register")
+async def register_patient(patient_data: PatientCreate):
+    # Check if patient already exists
+    existing_patient = await db.patients.find_one({"email": patient_data.email})
+    if existing_patient:
+        raise HTTPException(status_code=400, detail="Email ya registrado")
+    
+    # Create patient with authentication
+    patient_dict = patient_data.dict()
+    patient_obj = Patient(**patient_dict)
+    
+    # Save to database
+    await db.patients.insert_one(patient_obj.dict())
+    
+    return {
+        "message": "Paciente registrado exitosamente",
+        "patient_id": patient_obj.id,
+        "patient_name": patient_obj.nombre
+    }
+
+@api_router.post("/auth/login")
+async def login_patient(email: str, phone: str):
+    # Find patient by email and phone
+    patient = await db.patients.find_one({
+        "email": email,
+        "telefono": phone
+    })
+    
+    if not patient:
+        raise HTTPException(status_code=404, detail="Paciente no encontrado")
+    
+    return {
+        "message": "Login exitoso",
+        "patient_id": patient["id"],
+        "patient_name": patient["nombre"],
+        "patient_email": patient["email"]
+    }
+
+@api_router.post("/auth/admin/login")
+async def admin_login(email: str, password: str):
+    # Admin credentials - in production, use proper password hashing
+    ADMIN_EMAIL = "admin@drzerquera.com"
+    ADMIN_PASSWORD = "ZimiAdmin2025!"
+    
+    if email != ADMIN_EMAIL or password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Credenciales de administrador inválidas")
+    
+    return {
+        "message": "Admin login exitoso",
+        "role": "admin",
+        "access_token": "admin_token_zimi_2025"
+    }
+
+# Protected routes for patients
+@api_router.get("/patient/{patient_id}/appointments")
+async def get_patient_appointments(patient_id: str):
+    appointments = await db.appointments.find({"patient_id": patient_id}).sort("created_at", -1).to_list(100)
+    return [Appointment(**appointment) for appointment in appointments]
+
+@api_router.get("/patient/{patient_id}/profile")
+async def get_patient_profile(patient_id: str):
+    patient = await db.patients.find_one({"id": patient_id})
+    if not patient:
+        raise HTTPException(status_code=404, detail="Paciente no encontrado")
+    
+    return Patient(**patient)
+
+# Notification system for admin
+@api_router.post("/admin/notifications/new-appointment")
+async def notify_new_appointment(appointment_id: str):
+    # This would trigger push notification to admin
+    return {"message": "Notificación enviada al administrador"}
+
+# Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
     return {"message": "ZIMI API - Zerquera Integrative Medical Institute"}
