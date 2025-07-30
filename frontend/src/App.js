@@ -344,7 +344,7 @@ const ServicesPage = ({ setCurrentPage }) => {
   );
 };
 
-const AppointmentsPage = () => {
+const AppointmentsPage = ({ setCurrentPage }) => {
   const [appointmentData, setAppointmentData] = useState({
     patient_name: '',
     patient_email: '',
