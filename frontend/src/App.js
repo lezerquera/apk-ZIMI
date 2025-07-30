@@ -2096,7 +2096,381 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
   );
 };
 
-// Patient Profile Component
+// Flyer Management Page for Admin
+const FlyerManagementPage = ({ setCurrentPage, user }) => {
+  const [services, setServices] = useState([]);
+  const [editingFlyer, setEditingFlyer] = useState(null);
+  const [flyerData, setFlyerData] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const response = await axios.get(`${API}/services`);
+      setServices(response.data);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
+
+  const fetchFlyerData = async (serviceId) => {
+    try {
+      const response = await axios.get(`${API}/flyers/${serviceId}`);
+      setFlyerData(response.data);
+      setEditingFlyer(serviceId);
+    } catch (error) {
+      console.error('Error fetching flyer data:', error);
+    }
+  };
+
+  const saveFlyerData = async () => {
+    setLoading(true);
+    try {
+      await axios.put(`${API}/flyers/${editingFlyer}`, flyerData);
+      alert('Flyer actualizado exitosamente');
+      setEditingFlyer(null);
+    } catch (error) {
+      console.error('Error saving flyer:', error);
+      alert('Error guardando el flyer');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleArrayChange = (field, index, value) => {
+    const newArray = [...(flyerData[field] || [])];
+    newArray[index] = value;
+    setFlyerData({...flyerData, [field]: newArray});
+  };
+
+  const addArrayItem = (field) => {
+    const newArray = [...(flyerData[field] || []), ''];
+    setFlyerData({...flyerData, [field]: newArray});
+  };
+
+  const removeArrayItem = (field, index) => {
+    const newArray = (flyerData[field] || []).filter((_, i) => i !== index);
+    setFlyerData({...flyerData, [field]: newArray});
+  };
+
+  if (user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
+          <p className="text-gray-600">Solo administradores pueden acceder a esta página</p>
+          <button 
+            onClick={() => setCurrentPage('inicio')}
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg"
+          >
+            Volver al Inicio
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-blue-900">
+            Gestión de Flyers de Servicios
+          </h1>
+          <button
+            onClick={() => setCurrentPage('admin')}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+          >
+            ← Volver a Admin
+          </button>
+        </div>
+
+        {!editingFlyer ? (
+          // Services Grid
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service) => (
+              <div key={service.id} className="bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-xl font-semibold mb-3 text-blue-900">
+                  {service.nombre}
+                </h3>
+                <p className="text-gray-700 mb-4 text-sm">
+                  {service.descripcion}
+                </p>
+                <button
+                  onClick={() => fetchFlyerData(service.id)}
+                  className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  ✏️ Editar Flyer
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Flyer Editor
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-blue-900">
+                Editando Flyer: {services.find(s => s.id === editingFlyer)?.nombre}
+              </h2>
+              <div className="space-x-4">
+                <button
+                  onClick={() => setEditingFlyer(null)}
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={saveFlyerData}
+                  disabled={loading}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+                >
+                  {loading ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Basic Info */}
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Título del Flyer
+                  </label>
+                  <input
+                    type="text"
+                    value={flyerData.title || ''}
+                    onChange={(e) => setFlyerData({...flyerData, title: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    URL de Imagen
+                  </label>
+                  <input
+                    type="url"
+                    value={flyerData.image_url || ''}
+                    onChange={(e) => setFlyerData({...flyerData, image_url: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://ejemplo.com/imagen.jpg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Duración
+                  </label>
+                  <input
+                    type="text"
+                    value={flyerData.duration || ''}
+                    onChange={(e) => setFlyerData({...flyerData, duration: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Frecuencia
+                  </label>
+                  <input
+                    type="text"
+                    value={flyerData.frequency || ''}
+                    onChange={(e) => setFlyerData({...flyerData, frequency: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Información de Seguridad
+                  </label>
+                  <textarea
+                    value={flyerData.safety || ''}
+                    onChange={(e) => setFlyerData({...flyerData, safety: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Offer Section */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                  Oferta Especial
+                </h3>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Título de la Oferta
+                  </label>
+                  <input
+                    type="text"
+                    value={flyerData.offer_title || ''}
+                    onChange={(e) => setFlyerData({...flyerData, offer_title: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="OFERTA ESPECIAL"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Descripción de la Oferta
+                  </label>
+                  <input
+                    type="text"
+                    value={flyerData.offer_description || ''}
+                    onChange={(e) => setFlyerData({...flyerData, offer_description: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="20 Sesiones de Tratamiento"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Precio Oferta
+                    </label>
+                    <input
+                      type="text"
+                      value={flyerData.offer_price || ''}
+                      onChange={(e) => setFlyerData({...flyerData, offer_price: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="$1500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Precio Original
+                    </label>
+                    <input
+                      type="text"
+                      value={flyerData.offer_original_price || ''}
+                      onChange={(e) => setFlyerData({...flyerData, offer_original_price: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="$2000"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ahorro
+                    </label>
+                    <input
+                      type="text"
+                      value={flyerData.offer_savings || ''}
+                      onChange={(e) => setFlyerData({...flyerData, offer_savings: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ahorra $500"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Benefits Section */}
+            <div className="mt-8">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">Beneficios</h3>
+                <button
+                  onClick={() => addArrayItem('benefits')}
+                  className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                >
+                  + Agregar Beneficio
+                </button>
+              </div>
+              <div className="space-y-2">
+                {(flyerData.benefits || []).map((benefit, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={benefit}
+                      onChange={(e) => handleArrayChange('benefits', index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={() => removeArrayItem('benefits', index)}
+                      className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Conditions Section */}
+            <div className="mt-8">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">Condiciones que Tratamos</h3>
+                <button
+                  onClick={() => addArrayItem('conditions')}
+                  className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                >
+                  + Agregar Condición
+                </button>
+              </div>
+              <div className="space-y-2">
+                {(flyerData.conditions || []).map((condition, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={condition}
+                      onChange={(e) => handleArrayChange('conditions', index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={() => removeArrayItem('conditions', index)}
+                      className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Process Section */}
+            <div className="mt-8">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">Proceso de Tratamiento</h3>
+                <button
+                  onClick={() => addArrayItem('process')}
+                  className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                >
+                  + Agregar Paso
+                </button>
+              </div>
+              <div className="space-y-2">
+                {(flyerData.process || []).map((step, index) => (
+                  <div key={index} className="flex gap-2">
+                    <span className="bg-blue-100 text-blue-600 px-3 py-2 rounded font-semibold">
+                      {index + 1}
+                    </span>
+                    <input
+                      type="text"
+                      value={step}
+                      onChange={(e) => handleArrayChange('process', index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={() => removeArrayItem('process', index)}
+                      className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 const PatientProfilePage = ({ setCurrentPage, user }) => {
   const [patientData, setPatientData] = useState(null);
   const [appointments, setAppointments] = useState([]);
