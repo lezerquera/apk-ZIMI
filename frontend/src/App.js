@@ -248,7 +248,7 @@ const HomePage = ({ setCurrentPage }) => {
   );
 };
 
-const ServicesPage = () => {
+const ServicesPage = ({ setCurrentPage }) => {
   const [services, setServices] = useState([]);
   const [insurance, setInsurance] = useState(null);
 
