@@ -2750,6 +2750,14 @@ function App() {
           setCurrentPage('inicio');
           return <HomePage setCurrentPage={setCurrentPage} user={user} />;
         }
+      case 'flyer-management':
+        // Admin only page for flyer management
+        if (user?.role === 'admin') {
+          return <FlyerManagementPage setCurrentPage={setCurrentPage} user={user} />;
+        } else {
+          setCurrentPage('inicio');
+          return <HomePage setCurrentPage={setCurrentPage} user={user} />;
+        }
       case 'profile':
         return <PatientProfilePage setCurrentPage={setCurrentPage} user={user} />;
       default:
