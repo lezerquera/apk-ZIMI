@@ -5,6 +5,387 @@ import axios from 'axios';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Authentication Context
+const AuthContext = React.createContext();
+
+// Auth Components
+const LoginPage = ({ setCurrentPage, setUser, setIsAuthenticated }) => {
+  const [loginType, setLoginType] = useState('patient'); // 'patient' or 'admin'
+  const [formData, setFormData] = useState({
+    email: '',
+    phone: '',
+    password: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (loginType === 'patient') {
+        const response = await axios.post(`${API}/auth/login`, {}, {
+          params: {
+            email: formData.email,
+            phone: formData.phone
+          }
+        });
+        
+        setUser({
+          id: response.data.patient_id,
+          name: response.data.patient_name,
+          email: response.data.patient_email,
+          role: 'patient'
+        });
+        setIsAuthenticated(true);
+        setCurrentPage('inicio');
+      } else {
+        const response = await axios.post(`${API}/auth/admin/login`, {}, {
+          params: {
+            email: formData.email,
+            password: formData.password
+          }
+        });
+        
+        setUser({
+          email: formData.email,
+          role: 'admin',
+          access_token: response.data.access_token
+        });
+        setIsAuthenticated(true);
+        setCurrentPage('admin');
+      }
+    } catch (error) {
+      setError(error.response?.data?.detail || 'Error de autenticación');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+        <div className="text-center mb-8">
+          <img 
+            src="https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png" 
+            alt="ZIMI Logo" 
+            className="h-16 w-auto mx-auto mb-4"
+          />
+          <h1 className="text-2xl font-bold text-gray-800">Iniciar Sesión</h1>
+        </div>
+
+        {/* Login Type Toggle */}
+        <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+          <button
+            type="button"
+            onClick={() => setLoginType('patient')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+              loginType === 'patient'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            👤 Paciente
+          </button>
+          <button
+            type="button"
+            onClick={() => setLoginType('admin')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+              loginType === 'admin'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            ⚙️ Administrador
+          </button>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email *
+            </label>
+            <input
+              type="email"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder={loginType === 'admin' ? 'admin@drzerquera.com' : 'tu-email@ejemplo.com'}
+            />
+          </div>
+
+          {loginType === 'patient' ? (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Teléfono *
+              </label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="+1-555-0123"
+              />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Contraseña *
+              </label>
+              <input
+                type="password"
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Contraseña de administrador"
+              />
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+          >
+            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+          </button>
+        </form>
+
+        {loginType === 'patient' && (
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              ¿Primera vez aquí?{' '}
+              <button
+                onClick={() => setCurrentPage('register')}
+                className="text-blue-600 hover:underline font-medium"
+              >
+                Registrarse
+              </button>
+            </p>
+          </div>
+        )}
+
+        {loginType === 'admin' && (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-xs text-yellow-800">
+              <span className="font-semibold">Solo para personal autorizado.</span> 
+              <br/>Contacte al administrador si necesita acceso.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const RegisterPage = ({ setCurrentPage, setUser, setIsAuthenticated }) => {
+  const [formData, setFormData] = useState({
+    nombre: '',
+    apellido: '',
+    email: '',
+    telefono: '',
+    fecha_nacimiento: '',
+    direccion: '',
+    numero_seguro: '',
+    seguro: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post(`${API}/auth/register`, formData);
+      
+      setUser({
+        id: response.data.patient_id,
+        name: response.data.patient_name,
+        email: formData.email,
+        role: 'patient'
+      });
+      setIsAuthenticated(true);
+      setCurrentPage('inicio');
+    } catch (error) {
+      setError(error.response?.data?.detail || 'Error en el registro');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl">
+        <div className="text-center mb-8">
+          <img 
+            src="https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png" 
+            alt="ZIMI Logo" 
+            className="h-16 w-auto mx-auto mb-4"
+          />
+          <h1 className="text-2xl font-bold text-gray-800">Registro de Paciente</h1>
+          <p className="text-gray-600">Complete sus datos para crear su cuenta</p>
+        </div>
+
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nombre *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.nombre}
+                onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Apellido *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.apellido}
+                onChange={(e) => setFormData({...formData, apellido: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email *
+              </label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Teléfono *
+              </label>
+              <input
+                type="tel"
+                required
+                value={formData.telefono}
+                onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Fecha de Nacimiento
+              </label>
+              <input
+                type="date"
+                value={formData.fecha_nacimiento}
+                onChange={(e) => setFormData({...formData, fecha_nacimiento: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Seguro Médico
+              </label>
+              <select
+                value={formData.seguro}
+                onChange={(e) => setFormData({...formData, seguro: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Seleccione su seguro</option>
+                <option value="Ambetter">Ambetter</option>
+                <option value="Aetna">Aetna</option>
+                <option value="Careplus">Careplus</option>
+                <option value="Doctor Health">Doctor Health</option>
+                <option value="AvMed">AvMed</option>
+                <option value="Oscar">Oscar</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Dirección
+            </label>
+            <input
+              type="text"
+              value={formData.direccion}
+              onChange={(e) => setFormData({...formData, direccion: e.target.value})}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Dirección completa (opcional)"
+            />
+          </div>
+
+          {formData.seguro && formData.seguro !== 'Otro' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Número de Seguro
+              </label>
+              <input
+                type="text"
+                value={formData.numero_seguro}
+                onChange={(e) => setFormData({...formData, numero_seguro: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Número de póliza o identificación"
+              />
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setCurrentPage('login')}
+              className="flex-1 bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 font-semibold"
+            >
+              ← Volver al Login
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+            >
+              {loading ? 'Registrando...' : 'Registrarse'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 // Components
 const Header = ({ currentPage, setCurrentPage }) => (
   <header className="bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-lg sticky top-0 z-50">
