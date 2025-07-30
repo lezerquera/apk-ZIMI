@@ -58,7 +58,8 @@ const MobileNav = ({ currentPage, setCurrentPage }) => (
         { id: 'servicios', icon: '⚕️' },
         { id: 'citas', icon: '📅' },
         { id: 'doctor', icon: '👨‍⚕️' },
-        { id: 'contacto', icon: '📞' }
+        { id: 'contacto', icon: '📞' },
+        { id: 'admin', icon: '⚙️' }
       ].map(item => (
         <button
           key={item.id}
