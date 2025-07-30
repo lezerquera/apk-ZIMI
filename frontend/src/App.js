@@ -74,7 +74,7 @@ const MobileNav = ({ currentPage, setCurrentPage }) => (
   </nav>
 );
 
-const HomePage = () => {
+const HomePage = ({ setCurrentPage }) => {
   const [doctorInfo, setDoctorInfo] = useState(null);
   const [testimonials, setTestimonials] = useState([]);
 
