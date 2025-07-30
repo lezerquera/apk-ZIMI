@@ -3201,8 +3201,10 @@ function App() {
         setUser(userData);
         setIsAuthenticated(true);
         setCurrentPage('inicio');
+        setUiReady(true); // Set UI ready immediately for returning users
       } catch (error) {
         localStorage.removeItem('zimi_user');
+        setUiReady(true);
       }
     } else {
       setUiReady(true);
