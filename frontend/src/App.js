@@ -821,7 +821,7 @@ const DoctorPage = ({ setCurrentPage }) => {
   );
 };
 
-const ContactPage = () => {
+const ContactPage = ({ setCurrentPage }) => {
   const [contactInfo, setContactInfo] = useState(null);
   const [contactForm, setContactForm] = useState({
     nombre: '',
