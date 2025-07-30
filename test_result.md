@@ -242,13 +242,10 @@ metadata:
   run_ui: true
 
 test_plan:
-  current_focus:
-    - "Domain Setup Automation"
-    - "Deployment Configuration"
-    - "SEO and PWA Optimization"
+  current_focus: []
   stuck_tasks: []
   test_all: false
-  test_priority: "high_first"
+  test_priority: "completed"
 
 agent_communication:
     -agent: "main"
