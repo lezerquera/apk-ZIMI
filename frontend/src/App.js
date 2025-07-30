@@ -805,7 +805,10 @@ const DoctorPage = () => {
             >
               📞 Llamar Ahora
             </a>
-            <button className="bg-white text-blue-900 hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold text-lg transition-all">
+            <button 
+              onClick={() => setCurrentPage('citas')}
+              className="bg-white text-blue-900 hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold text-lg transition-all"
+            >
               📅 Agendar Cita
             </button>
           </div>
