@@ -388,6 +388,21 @@ const RegisterPage = ({ setCurrentPage, setUser, setIsAuthenticated }) => {
 
 // Components
 const Header = ({ currentPage, setCurrentPage, user, logout }) => {
+  // Function to force clear cache and notifications
+  const forceClearCache = () => {
+    // Clear all notifications
+    document.querySelectorAll('.fixed, [class*="notification"]').forEach(el => {
+      if (el.style.zIndex > 30) el.remove();
+    });
+    
+    // Clear localStorage
+    localStorage.removeItem('zimi_notifications');
+    localStorage.removeItem('zimi_cache');
+    
+    // Reload page
+    window.location.reload(true);
+  };
+
   // Filter navigation items based on user role
   const getNavItems = () => {
     const baseItems = [
@@ -452,6 +467,18 @@ const Header = ({ currentPage, setCurrentPage, user, logout }) => {
               </p>
               <p className="text-xs text-blue-200">{user?.email}</p>
             </div>
+            
+            {/* Cache clear button for admin */}
+            {user?.role === 'admin' && (
+              <button
+                onClick={forceClearCache}
+                className="bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded-lg text-sm font-medium transition-all"
+                title="Limpiar caché y notificaciones"
+              >
+                🧹 Limpiar
+              </button>
+            )}
+            
             <button
               onClick={logout}
               className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm font-medium transition-all"
