@@ -821,6 +821,267 @@ const DoctorPage = ({ setCurrentPage }) => {
   );
 };
 
+const AdminPage = ({ setCurrentPage }) => {
+  const [appointments, setAppointments] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [appointmentsResponse] = await Promise.all([
+          axios.get(`${API}/appointments`)
+        ]);
+        setAppointments(appointmentsResponse.data);
+      } catch (error) {
+        console.error('Error fetching admin data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const confirmAppointment = async (appointmentId, telemedicineLink = null) => {
+    try {
+      const url = `${API}/appointments/${appointmentId}/confirm`;
+      const data = telemedicineLink ? { telemedicine_link: telemedicineLink } : {};
+      
+      await axios.put(url, data);
+      
+      // Refresh appointments
+      const response = await axios.get(`${API}/appointments`);
+      setAppointments(response.data);
+      
+      alert('Cita confirmada exitosamente');
+    } catch (error) {
+      console.error('Error confirming appointment:', error);
+      alert('Error al confirmar la cita');
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'solicitada': return 'bg-yellow-100 text-yellow-800';
+      case 'confirmada': return 'bg-green-100 text-green-800';
+      case 'completada': return 'bg-blue-100 text-blue-800';
+      case 'cancelada': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Cargando panel de administración...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-blue-900">
+            Panel de Administración ZIMI
+          </h1>
+          <button
+            onClick={() => setCurrentPage('inicio')}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+          >
+            ← Volver a Inicio
+          </button>
+        </div>
+
+        {/* Statistics */}
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-700">Total Citas</h3>
+            <p className="text-3xl font-bold text-blue-600">{appointments.length}</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-700">Pendientes</h3>
+            <p className="text-3xl font-bold text-yellow-600">
+              {appointments.filter(apt => apt.status === 'solicitada').length}
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-700">Confirmadas</h3>
+            <p className="text-3xl font-bold text-green-600">
+              {appointments.filter(apt => apt.status === 'confirmada').length}
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-700">Telemedicina</h3>
+            <p className="text-3xl font-bold text-purple-600">
+              {appointments.filter(apt => apt.appointment_type === 'telemedicina').length}
+            </p>
+          </div>
+        </div>
+
+        {/* Appointments Table */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="px-6 py-4 border-b">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Solicitudes de Citas ({appointments.length})
+            </h2>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Paciente
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Contacto
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Servicio
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Tipo
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Fecha/Hora
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Estado
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {appointments.map((appointment) => (
+                  <tr key={appointment.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {appointment.patient_name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          ID: {appointment.patient_id.slice(0, 8)}...
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm">
+                        <div className="text-gray-900">{appointment.patient_email}</div>
+                        <div className="text-gray-500">{appointment.patient_phone}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {appointment.service_type.replace(/_/g, ' ').toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        appointment.appointment_type === 'telemedicina' 
+                          ? 'bg-purple-100 text-purple-800' 
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {appointment.appointment_type === 'telemedicina' ? '💻 Telemedicina' : '🏥 Presencial'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      <div>{appointment.fecha_solicitada}</div>
+                      <div className="text-gray-500">{appointment.hora_solicitada}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(appointment.status)}`}>
+                        {appointment.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm space-y-2">
+                      {appointment.status === 'solicitada' && (
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => confirmAppointment(appointment.id)}
+                            className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 block"
+                          >
+                            ✅ Confirmar
+                          </button>
+                          {appointment.appointment_type === 'telemedicina' && (
+                            <button
+                              onClick={() => {
+                                const link = prompt('Ingrese el link de telemedicina (ej: https://meet.google.com/abc-def-ghi):');
+                                if (link) confirmAppointment(appointment.id, link);
+                              }}
+                              className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 block"
+                            >
+                              💻 + Link
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      <a
+                        href={`tel:${appointment.patient_phone}`}
+                        className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 block text-center"
+                      >
+                        📞 Llamar
+                      </a>
+                      <a
+                        href={`mailto:${appointment.patient_email}`}
+                        className="bg-gray-600 text-white px-3 py-1 rounded text-xs hover:bg-gray-700 block text-center"
+                      >
+                        📧 Email
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {appointments.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📅</div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                No hay citas solicitadas
+              </h3>
+              <p className="text-gray-500">
+                Las nuevas solicitudes aparecerán aquí automáticamente
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Instructions */}
+        <div className="mt-8 bg-blue-50 p-6 rounded-lg">
+          <h3 className="text-lg font-bold text-blue-900 mb-4">
+            📋 Instrucciones de Uso
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <h4 className="font-semibold mb-2">✅ Confirmar Citas:</h4>
+              <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <li>Haga clic en "Confirmar" para citas presenciales</li>
+                <li>Use "💻 + Link" para telemedicina</li>
+                <li>El paciente recibe confirmación automática</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">📞 Contactar Pacientes:</h4>
+              <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <li>Use "📞 Llamar" para contacto directo</li>
+                <li>Use "📧 Email" para enviar mensajes</li>
+                <li>La información se actualiza en tiempo real</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ContactPage = ({ setCurrentPage }) => {
   const [contactInfo, setContactInfo] = useState(null);
   const [contactForm, setContactForm] = useState({
