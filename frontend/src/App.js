@@ -2389,10 +2389,8 @@ function App() {
         />
       )}
       
-      {/* Notification System for Admin */}
-      {isAuthenticated && user?.role === 'admin' && (
-        <NotificationSystem user={user} />
-      )}
+      {/* Simple background notification system */}
+      {isAuthenticated && user?.role === 'admin' && useNotificationSystem(user)}
       
       <main className={showMobileNav ? "pb-20 md:pb-0" : ""}>
         {renderPage()}
