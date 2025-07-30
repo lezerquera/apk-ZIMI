@@ -1858,65 +1858,7 @@ const ContactPage = ({ setCurrentPage }) => {
   );
 };
 
-// Simple Notification System (Background only)
-const useNotificationSystem = (user) => {
-  useEffect(() => {
-    if (user?.role !== 'admin') return;
 
-    let interval;
-    let lastCheck = Date.now();
-
-    // Request notification permission quietly
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-
-    const checkForNewAppointments = async () => {
-      try {
-        const response = await axios.get(`${API}/appointments`);
-        const appointments = response.data;
-        
-        // Find new appointments since last check
-        const newAppointments = appointments.filter(apt => 
-          new Date(apt.created_at).getTime() > lastCheck && 
-          apt.status === 'solicitada'
-        );
-
-        if (newAppointments.length > 0) {
-          newAppointments.forEach(apt => {
-            const title = '🏥 Nueva Solicitud de Cita - ZIMI';
-            const body = `${apt.patient_name} solicita ${apt.service_type.replace(/_/g, ' ')} para ${apt.fecha_solicitada}`;
-            
-            // Simple browser notification
-            if (Notification.permission === 'granted') {
-              new Notification(title, {
-                body,
-                icon: 'https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png',
-                tag: 'zimi-notification'
-              });
-            }
-          });
-
-          lastCheck = Date.now();
-        }
-      } catch (error) {
-        console.error('Error checking for new appointments:', error);
-      }
-    };
-
-    // Check every 60 seconds
-    interval = setInterval(checkForNewAppointments, 60000);
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [user]);
-};
-// Simple Notification Hook Component  
-const NotificationHook = ({ user }) => {
-  useNotificationSystem(user);
-  return null; // This component doesn't render anything visible
-};
 const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
   const [flyerData, setFlyerData] = useState(null);
   const [loading, setLoading] = useState(false);
