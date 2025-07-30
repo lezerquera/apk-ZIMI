@@ -2727,9 +2727,6 @@ function App() {
         />
       )}
       
-      {/* Simple background notification system */}
-      {isAuthenticated && user?.role === 'admin' && <NotificationHook user={user} />}
-      
       <main className={showMobileNav ? "pb-20 md:pb-0" : ""}>
         {renderPage()}
       </main>
