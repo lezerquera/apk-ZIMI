@@ -465,31 +465,49 @@ const Header = ({ currentPage, setCurrentPage, user, logout }) => {
   );
 };
 
-const MobileNav = ({ currentPage, setCurrentPage }) => (
-  <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:hidden z-50">
-    <div className="flex justify-around py-2">
-      {[
-        { id: 'inicio', icon: '🏠' },
-        { id: 'servicios', icon: '⚕️' },
-        { id: 'citas', icon: '📅' },
-        { id: 'doctor', icon: '👨‍⚕️' },
-        { id: 'contacto', icon: '📞' },
-        { id: 'admin', icon: '⚙️' }
-      ].map(item => (
-        <button
-          key={item.id}
-          onClick={() => setCurrentPage(item.id)}
-          className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-            currentPage === item.id ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
-          }`}
-        >
-          <span className="text-xl">{item.icon}</span>
-          <span className="text-xs mt-1 capitalize">{item.id}</span>
-        </button>
-      ))}
-    </div>
-  </nav>
-);
+const MobileNav = ({ currentPage, setCurrentPage, user }) => {
+  // Filter navigation items based on user role
+  const getNavItems = () => {
+    const baseItems = [
+      { id: 'inicio', icon: '🏠' },
+      { id: 'servicios', icon: '⚕️' },
+      { id: 'citas', icon: '📅' },
+      { id: 'doctor', icon: '👨‍⚕️' },
+      { id: 'contacto', icon: '📞' }
+    ];
+
+    // Add admin menu only for admin users
+    if (user?.role === 'admin') {
+      baseItems.push({ id: 'admin', icon: '⚙️' });
+    }
+
+    // Add profile for patients
+    if (user?.role === 'patient') {
+      baseItems.push({ id: 'profile', icon: '👤' });
+    }
+
+    return baseItems;
+  };
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:hidden z-50">
+      <div className="flex justify-around py-2">
+        {getNavItems().map(item => (
+          <button
+            key={item.id}
+            onClick={() => setCurrentPage(item.id)}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
+              currentPage === item.id ? 'text-blue-600 bg-blue-50' : 'text-gray-600'
+            }`}
+          >
+            <span className="text-xl">{item.icon}</span>
+            <span className="text-xs mt-1 capitalize">{item.id}</span>
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+};
 
 const HomePage = ({ setCurrentPage }) => {
   const [doctorInfo, setDoctorInfo] = useState(null);
