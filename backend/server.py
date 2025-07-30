@@ -675,7 +675,7 @@ async def get_insurance():
 async def get_contact_info():
     return {
         "telefono": "+1 305 274 4351",
-        "whatsapp": "+1 954 669 8708",
+        "whatsapp": "+1 305 274 4351",
         "email": "drzerquera@aol.com",
         "direccion": {
             "calle": "7700 N Kendall Dr. Unit 807",
