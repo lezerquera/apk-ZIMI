@@ -132,7 +132,10 @@ const HomePage = ({ setCurrentPage }) => {
               <div className="text-4xl mb-4">📅</div>
               <h3 className="text-xl font-semibold mb-2">Agendar Cita</h3>
               <p className="text-gray-600 mb-4">Presencial o Telemedicina</p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+              <button 
+                onClick={() => setCurrentPage('citas')}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all"
+              >
                 Solicitar Cita
               </button>
             </div>
@@ -141,7 +144,10 @@ const HomePage = ({ setCurrentPage }) => {
               <div className="text-4xl mb-4">🩺</div>
               <h3 className="text-xl font-semibold mb-2">Servicios</h3>
               <p className="text-gray-600 mb-4">10+ Especialidades</p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+              <button 
+                onClick={() => setCurrentPage('servicios')}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all"
+              >
                 Ver Servicios
               </button>
             </div>
@@ -150,7 +156,10 @@ const HomePage = ({ setCurrentPage }) => {
               <div className="text-4xl mb-4">💻</div>
               <h3 className="text-xl font-semibold mb-2">Telemedicina</h3>
               <p className="text-gray-600 mb-4">Consultas Virtuales</p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+              <button 
+                onClick={() => setCurrentPage('citas')}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all"
+              >
                 Consulta Virtual
               </button>
             </div>
