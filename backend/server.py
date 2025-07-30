@@ -274,6 +274,69 @@ async def notify_new_appointment(appointment_id: str):
     # This would trigger push notification to admin
     return {"message": "Notificación enviada al administrador"}
 
+# Message system routes
+@api_router.get("/messages/{user_id}", response_model=List[Message])
+async def get_user_messages(user_id: str):
+    messages = await db.messages.find({
+        "$or": [{"sender_id": user_id}, {"receiver_id": user_id}]
+    }).sort("created_at", -1).to_list(100)
+    return [Message(**message) for message in messages]
+
+@api_router.post("/messages", response_model=Message)
+async def send_message(message_data: MessageCreate, sender_id: str, sender_name: str):
+    message_dict = message_data.dict()
+    message_dict["sender_id"] = sender_id
+    message_dict["sender_name"] = sender_name
+    
+    message_obj = Message(**message_dict)
+    await db.messages.insert_one(message_obj.dict())
+    
+    return message_obj
+
+@api_router.put("/messages/{message_id}/read")
+async def mark_message_read(message_id: str):
+    result = await db.messages.update_one(
+        {"id": message_id},
+        {"$set": {"is_read": True, "read_at": datetime.utcnow()}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Mensaje no encontrado")
+    
+    return {"message": "Mensaje marcado como leído"}
+
+@api_router.post("/messages/{message_id}/reply", response_model=Message)
+async def reply_to_message(message_id: str, reply_data: MessageReply, sender_id: str, sender_name: str):
+    # Get original message
+    original_message = await db.messages.find_one({"id": message_id})
+    if not original_message:
+        raise HTTPException(status_code=404, detail="Mensaje original no encontrado")
+    
+    # Create reply
+    reply_dict = {
+        "sender_id": sender_id,
+        "receiver_id": original_message["sender_id"],
+        "sender_name": sender_name,
+        "receiver_name": original_message["sender_name"],
+        "subject": f"Re: {original_message['subject']}",
+        "message": reply_data.message,
+        "message_type": original_message["message_type"],
+        "appointment_id": original_message.get("appointment_id")
+    }
+    
+    reply_obj = Message(**reply_dict)
+    await db.messages.insert_one(reply_obj.dict())
+    
+    return reply_obj
+
+@api_router.get("/messages/unread/{user_id}")
+async def get_unread_count(user_id: str):
+    count = await db.messages.count_documents({
+        "receiver_id": user_id,
+        "is_read": False
+    })
+    return {"unread_count": count}
+
 # Flyer management routes (Admin only)
 @api_router.get("/flyers")
 async def get_all_flyers():
