@@ -970,6 +970,7 @@ const MobileNav = ({ currentPage, setCurrentPage, user }) => {
       { id: 'inicio', icon: '🏠' },
       { id: 'servicios', icon: '⚕️' },
       { id: 'citas', icon: '📅' },
+      { id: 'mensajes', icon: '💬' },
       { id: 'doctor', icon: '👨‍⚕️' },
       { id: 'contacto', icon: '📞' }
     ];
