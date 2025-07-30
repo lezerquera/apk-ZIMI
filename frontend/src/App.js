@@ -634,6 +634,8 @@ const HomePage = ({ setCurrentPage }) => {
 const ServicesPage = ({ setCurrentPage }) => {
   const [services, setServices] = useState([]);
   const [insurance, setInsurance] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
+  const [showFlyer, setShowFlyer] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -650,6 +652,16 @@ const ServicesPage = ({ setCurrentPage }) => {
     };
     fetchData();
   }, []);
+
+  const openFlyer = (service) => {
+    setSelectedService(service);
+    setShowFlyer(true);
+  };
+
+  const closeFlyer = () => {
+    setShowFlyer(false);
+    setSelectedService(null);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -680,7 +692,7 @@ const ServicesPage = ({ setCurrentPage }) => {
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
                     {service.disponible_telemedicina ? (
                       <>
@@ -694,12 +706,21 @@ const ServicesPage = ({ setCurrentPage }) => {
                       </>
                     )}
                   </div>
-                  
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex space-x-2">
                   <button 
                     onClick={() => setCurrentPage('citas')}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm transition-all"
+                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm transition-all"
                   >
-                    Agendar
+                    📅 Agendar
+                  </button>
+                  <button 
+                    onClick={() => openFlyer(service)}
+                    className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm transition-all"
+                  >
+                    📋 Info Detallada
                   </button>
                 </div>
               </div>
@@ -723,6 +744,13 @@ const ServicesPage = ({ setCurrentPage }) => {
           </div>
         )}
       </div>
+
+      {/* Service Flyer Modal */}
+      <ServiceFlyerModal 
+        service={selectedService}
+        isOpen={showFlyer}
+        onClose={closeFlyer}
+      />
     </div>
   );
 };
