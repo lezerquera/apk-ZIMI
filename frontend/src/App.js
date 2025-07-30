@@ -2003,6 +2003,208 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
   );
 };
 
+// Patient Profile Component
+const PatientProfilePage = ({ setCurrentPage, user }) => {
+  const [patientData, setPatientData] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const [profileResponse, appointmentsResponse] = await Promise.all([
+          axios.get(`${API}/patient/${user.id}/profile`),
+          axios.get(`${API}/patient/${user.id}/appointments`)
+        ]);
+        
+        setPatientData(profileResponse.data);
+        setAppointments(appointmentsResponse.data);
+      } catch (error) {
+        console.error('Error fetching patient data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatientData();
+  }, [user]);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'solicitada': return 'bg-yellow-100 text-yellow-800';
+      case 'confirmada': return 'bg-green-100 text-green-800';
+      case 'completada': return 'bg-blue-100 text-blue-800';
+      case 'cancelada': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Cargando perfil...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-blue-900 mb-2">Mi Perfil</h1>
+          <p className="text-gray-600">Gestione su información personal y vea su historial médico</p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Patient Information */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="text-center mb-6">
+                <div className="bg-blue-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl">👤</span>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {patientData?.nombre} {patientData?.apellido}
+                </h2>
+                <p className="text-gray-600">Paciente ZIMI</p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <p className="text-gray-900">{patientData?.email}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Teléfono</label>
+                  <p className="text-gray-900">{patientData?.telefono}</p>
+                </div>
+                
+                {patientData?.fecha_nacimiento && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
+                    <p className="text-gray-900">{patientData.fecha_nacimiento}</p>
+                  </div>
+                )}
+                
+                {patientData?.seguro && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Seguro Médico</label>
+                    <p className="text-gray-900">{patientData.seguro}</p>
+                  </div>
+                )}
+                
+                {patientData?.direccion && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Dirección</label>
+                    <p className="text-gray-900">{patientData.direccion}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 pt-6 border-t">
+                <button
+                  onClick={() => setCurrentPage('citas')}
+                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 font-semibold"
+                >
+                  📅 Nueva Cita
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Appointments History */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-lg">
+              <div className="px-6 py-4 border-b">
+                <h3 className="text-2xl font-bold text-gray-800">
+                  Historial de Citas ({appointments.length})
+                </h3>
+              </div>
+
+              <div className="p-6">
+                {appointments.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">📅</div>
+                    <h4 className="text-xl font-semibold text-gray-600 mb-2">
+                      No hay citas registradas
+                    </h4>
+                    <p className="text-gray-500 mb-6">
+                      Solicite su primera cita médica con nosotros
+                    </p>
+                    <button
+                      onClick={() => setCurrentPage('citas')}
+                      className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
+                    >
+                      Solicitar Primera Cita
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {appointments.map((appointment) => (
+                      <div key={appointment.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-all">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-semibold text-lg text-gray-800">
+                            {appointment.service_type.replace(/_/g, ' ').toUpperCase()}
+                          </h4>
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(appointment.status)}`}>
+                            {appointment.status.toUpperCase()}
+                          </span>
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                          <div>
+                            <span className="font-medium">Fecha:</span> {appointment.fecha_solicitada}
+                          </div>
+                          <div>
+                            <span className="font-medium">Hora:</span> {appointment.hora_solicitada}
+                          </div>
+                          <div>
+                            <span className="font-medium">Tipo:</span> {
+                              appointment.appointment_type === 'telemedicina' ? '💻 Telemedicina' : '🏥 Presencial'
+                            }
+                          </div>
+                          <div>
+                            <span className="font-medium">Creada:</span> {new Date(appointment.created_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                        
+                        {appointment.mensaje && (
+                          <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
+                            <span className="font-medium">Nota:</span> {appointment.mensaje}
+                          </div>
+                        )}
+                        
+                        {appointment.telemedicine_link && (
+                          <div className="mt-2">
+                            <a
+                              href={appointment.telemedicine_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+                            >
+                              💻 Unirse a Consulta Virtual →
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component
 function App() {
   const [currentPage, setCurrentPage] = useState('login'); // Start with login
