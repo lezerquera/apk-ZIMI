@@ -28,7 +28,8 @@ const Header = ({ currentPage, setCurrentPage }) => (
             { id: 'servicios', label: 'Servicios', icon: '⚕️' },
             { id: 'citas', label: 'Citas', icon: '📅' },
             { id: 'doctor', label: 'Dr. Zerquera', icon: '👨‍⚕️' },
-            { id: 'contacto', label: 'Contacto', icon: '📞' }
+            { id: 'contacto', label: 'Contacto', icon: '📞' },
+            { id: 'admin', label: 'Admin', icon: '⚙️' }
           ].map(item => (
             <button
               key={item.id}
