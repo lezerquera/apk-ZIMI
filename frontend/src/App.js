@@ -1154,7 +1154,7 @@ const DoctorPage = ({ setCurrentPage }) => {
               <img
                 src={doctorInfo.imagen}
                 alt={doctorInfo.nombre}
-                className="w-80 h-80 object-cover rounded-full shadow-2xl mx-auto border-8 border-white"
+                className="w-full max-w-sm h-80 object-cover object-center rounded-lg shadow-2xl mx-auto border-4 border-white"
               />
             </div>
           </div>
