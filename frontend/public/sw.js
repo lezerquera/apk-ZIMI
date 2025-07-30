@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zimi-app-v1.0.1';
+const CACHE_NAME = 'zimi-app-v1.0.2'; // Updated version to force cache refresh
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
@@ -8,7 +8,7 @@ const urlsToCache = [
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
-  console.log('ZIMI Service Worker: Installing...');
+  console.log('ZIMI Service Worker: Installing v1.0.2...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -23,20 +23,30 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and notifications
 self.addEventListener('activate', (event) => {
-  console.log('ZIMI Service Worker: Activating...');
+  console.log('ZIMI Service Worker: Activating v1.0.2...');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('ZIMI Service Worker: Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
+    Promise.all([
+      // Clean old caches
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('ZIMI Service Worker: Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Clear any existing notifications
+      self.registration.getNotifications().then((notifications) => {
+        notifications.forEach((notification) => {
+          console.log('ZIMI Service Worker: Closing notification:', notification.tag);
+          notification.close();
+        });
+      }).catch(() => console.log('No notifications to clear'))
+    ]).then(() => {
       // Ensure the new service worker takes control immediately
       return self.clients.claim();
     })
