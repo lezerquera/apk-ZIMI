@@ -2793,7 +2793,7 @@ function App() {
 
   // Don't render header for login/register pages
   const showHeader = isAuthenticated && !['login', 'register'].includes(currentPage);
-  const showMobileNav = isAuthenticated && !['login', 'register'].includes(currentPage);
+  const showMobileNav = isAuthenticated && !['login', 'register', 'flyer-management'].includes(currentPage);
 
   return (
     <div className="App min-h-screen bg-gray-50">
