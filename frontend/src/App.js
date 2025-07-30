@@ -1519,11 +1519,11 @@ const AdminPage = ({ setCurrentPage }) => {
         {/* Instructions */}
         <div className="mt-8 bg-blue-50 p-6 rounded-lg">
           <h3 className="text-lg font-bold text-blue-900 mb-4">
-            📋 Instrucciones de Uso
+            📋 Panel de Administración
           </h3>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             <div>
-              <h4 className="font-semibold mb-2">✅ Confirmar Citas:</h4>
+              <h4 className="font-semibold mb-2">✅ Gestión de Citas:</h4>
               <ul className="list-disc list-inside text-gray-700 space-y-1">
                 <li>Haga clic en "Confirmar" para citas presenciales</li>
                 <li>Use "💻 + Link" para telemedicina</li>
@@ -1531,13 +1531,22 @@ const AdminPage = ({ setCurrentPage }) => {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">📞 Contactar Pacientes:</h4>
+              <h4 className="font-semibold mb-2">📞 Herramientas:</h4>
               <ul className="list-disc list-inside text-gray-700 space-y-1">
                 <li>Use "📞 Llamar" para contacto directo</li>
                 <li>Use "📧 Email" para enviar mensajes</li>
-                <li>La información se actualiza en tiempo real</li>
+                <li>Gestione flyers de servicios</li>
               </ul>
             </div>
+          </div>
+          
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setCurrentPage('flyer-management')}
+              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 font-semibold"
+            >
+              🎨 Gestionar Flyers de Servicios
+            </button>
           </div>
         </div>
       </div>
