@@ -387,49 +387,83 @@ const RegisterPage = ({ setCurrentPage, setUser, setIsAuthenticated }) => {
 };
 
 // Components
-const Header = ({ currentPage, setCurrentPage }) => (
-  <header className="bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-lg sticky top-0 z-50">
-    <div className="container mx-auto px-4 py-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <img 
-            src="https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png" 
-            alt="ZIMI Logo" 
-            className="h-12 w-auto"
-          />
-          <div>
-            <h1 className="text-xl font-bold">ZIMI</h1>
-            <p className="text-sm text-blue-200">Medicina Integrativa</p>
+const Header = ({ currentPage, setCurrentPage, user, logout }) => {
+  // Filter navigation items based on user role
+  const getNavItems = () => {
+    const baseItems = [
+      { id: 'inicio', label: 'Inicio', icon: '🏠' },
+      { id: 'servicios', label: 'Servicios', icon: '⚕️' },
+      { id: 'citas', label: 'Citas', icon: '📅' },
+      { id: 'doctor', label: 'Dr. Zerquera', icon: '👨‍⚕️' },
+      { id: 'contacto', label: 'Contacto', icon: '📞' }
+    ];
+
+    // Add admin menu only for admin users
+    if (user?.role === 'admin') {
+      baseItems.push({ id: 'admin', label: 'Admin', icon: '⚙️' });
+    }
+
+    // Add profile for patients
+    if (user?.role === 'patient') {
+      baseItems.push({ id: 'profile', label: 'Mi Perfil', icon: '👤' });
+    }
+
+    return baseItems;
+  };
+
+  return (
+    <header className="bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-lg sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <img 
+              src="https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png" 
+              alt="ZIMI Logo" 
+              className="h-12 w-auto"
+            />
+            <div>
+              <h1 className="text-xl font-bold">ZIMI</h1>
+              <p className="text-sm text-blue-200">Medicina Integrativa</p>
+            </div>
+          </div>
+          
+          <nav className="hidden md:flex space-x-6">
+            {getNavItems().map(item => (
+              <button
+                key={item.id}
+                onClick={() => setCurrentPage(item.id)}
+                className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-all ${
+                  currentPage === item.id 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-blue-100 hover:bg-blue-600'
+                }`}
+              >
+                <span>{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+
+          {/* User info and logout */}
+          <div className="flex items-center space-x-4">
+            <div className="hidden md:block text-right">
+              <p className="text-sm font-medium">
+                {user?.role === 'admin' ? '🔧 Administrador' : `👋 ${user?.name}`}
+              </p>
+              <p className="text-xs text-blue-200">{user?.email}</p>
+            </div>
+            <button
+              onClick={logout}
+              className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm font-medium transition-all"
+            >
+              🚪 Salir
+            </button>
           </div>
         </div>
-        
-        <nav className="hidden md:flex space-x-6">
-          {[
-            { id: 'inicio', label: 'Inicio', icon: '🏠' },
-            { id: 'servicios', label: 'Servicios', icon: '⚕️' },
-            { id: 'citas', label: 'Citas', icon: '📅' },
-            { id: 'doctor', label: 'Dr. Zerquera', icon: '👨‍⚕️' },
-            { id: 'contacto', label: 'Contacto', icon: '📞' },
-            { id: 'admin', label: 'Admin', icon: '⚙️' }
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentPage(item.id)}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-all ${
-                currentPage === item.id 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-blue-100 hover:bg-blue-600'
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
 const MobileNav = ({ currentPage, setCurrentPage }) => (
   <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:hidden z-50">
