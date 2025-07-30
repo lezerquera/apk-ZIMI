@@ -1047,7 +1047,7 @@ const HomePage = ({ setCurrentPage }) => {
               📞 Llamar Ahora
             </a>
             <a
-              href="https://wa.me/19546698708"
+              href="https://wa.me/13052744351"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-green-600 hover:bg-green-700 px-8 py-4 rounded-lg font-semibold text-lg transition-all"
