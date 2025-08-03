@@ -1472,10 +1472,26 @@ const AppointmentsPage = ({ setCurrentPage }) => {
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <div className="text-6xl mb-4">✅</div>
             <h2 className="text-3xl font-bold text-green-600 mb-4">
-              ¡Solicitud Enviada!
+              ¡Solicitud de Consulta Enviada!
             </h2>
+            <div className="bg-blue-50 p-6 rounded-lg mb-6">
+              <div className="flex items-center justify-center mb-3">
+                <span className="text-3xl mr-2">👨‍⚕️</span>
+                <h3 className="text-xl font-semibold text-blue-900">Dr. Pablo Zerquera</h3>
+              </div>
+              <p className="text-blue-800 font-medium mb-3">
+                Su solicitud está siendo revisada personalmente
+              </p>
+              <div className="text-sm text-blue-700 space-y-2">
+                <p>✓ <strong>Revisión médica:</strong> El doctor evaluará su caso individualmente</p>
+                <p>✓ <strong>Asignación de fecha:</strong> Se le proporcionará la fecha más apropiada</p>
+                <p>✓ <strong>Confirmación:</strong> Recibirá respuesta en 24-48 horas</p>
+                <p>✓ <strong>Contacto directo:</strong> Si es urgente, nos comunicaremos antes</p>
+              </div>
+            </div>
             <p className="text-gray-700 mb-6">
-              Su solicitud de cita ha sido enviada exitosamente. 
+              El Dr. Zerquera ha recibido su solicitud y le asignará la fecha de consulta 
+              más conveniente según su condición médica y nivel de urgencia indicado. 
               Nuestro equipo se pondrá en contacto con usted pronto para confirmar su cita.
             </p>
             <div className="space-y-4">
