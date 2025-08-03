@@ -642,7 +642,7 @@ const MessagingPage = ({ setCurrentPage, user }) => {
                       key={message.id}
                       onClick={() => {
                         setSelectedMessage(message);
-                        if (!message.is_read && message.receiver_id === user.id) {
+                        if (!message.is_read && message.receiver_id === (user.role === 'admin' ? 'admin' : user.id)) {
                           markAsRead(message.id);
                         }
                       }}
