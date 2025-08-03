@@ -2366,21 +2366,33 @@ const AdminPage = ({ setCurrentPage }) => {
                     {appointment.status === 'solicitada' && (
                       <div className="grid grid-cols-1 gap-2">
                         <button
-                          onClick={() => confirmAppointment(appointment.id)}
+                          onClick={() => confirmAppointment(appointment.id, false)}
                           className="elderly-friendly-button bg-green-600 text-white hover:bg-green-700 text-lg py-4"
                         >
-                          ✅ Confirmar Cita
+                          📅 Asignar Fecha y Confirmar
                         </button>
-                        {appointment.appointment_type === 'telemedicina' && (
-                          <button
-                            onClick={() => {
-                              const link = prompt('Ingrese el link de telemedicina (ej: https://meet.google.com/abc-def-ghi):');
-                              if (link) confirmAppointment(appointment.id, link);
-                            }}
-                            className="elderly-friendly-button bg-purple-600 text-white hover:bg-purple-700 text-lg py-4"
-                          >
-                            💻 Confirmar + Agregar Link
-                          </button>
+                        <button
+                          onClick={() => confirmAppointment(appointment.id, true)}
+                          className="elderly-friendly-button bg-blue-600 text-white hover:bg-blue-700 text-lg py-4"
+                        >
+                          ⚡ Confirmación Rápida (Mañana 9AM)
+                        </button>
+                      </div>
+                    )}
+                    {appointment.status === 'confirmada' && (
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <p className="text-green-800 font-medium">
+                          ✅ Cita confirmada para: {appointment.assigned_date} a las {appointment.assigned_time}
+                        </p>
+                        {appointment.telemedicine_link && (
+                          <p className="text-blue-600 text-sm mt-1">
+                            🔗 Link: {appointment.telemedicine_link}
+                          </p>
+                        )}
+                        {appointment.doctor_notes && (
+                          <p className="text-gray-600 text-sm mt-1">
+                            📝 Notas: {appointment.doctor_notes}
+                          </p>
                         )}
                       </div>
                     )}
