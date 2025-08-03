@@ -2114,6 +2114,227 @@ const AdminPage = ({ setCurrentPage }) => {
   );
 };
 
+const DoctorImageManager = ({ setCurrentPage }) => {
+  const [currentImage, setCurrentImage] = useState(null);
+  const [newImage, setNewImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  useEffect(() => {
+    fetchCurrentImage();
+  }, []);
+
+  const fetchCurrentImage = async () => {
+    try {
+      const response = await axios.get(`${API}/doctor-info`);
+      setCurrentImage(response.data.imagen);
+    } catch (error) {
+      console.error('Error fetching current image:', error);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!newImage) {
+      alert('Por favor seleccione una imagen');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Convert image to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Data = reader.result;
+        
+        try {
+          await axios.post(`${API}/admin/doctor-image`, {
+            image_data: base64Data
+          });
+          
+          setUploadSuccess(true);
+          setCurrentImage(imagePreview);
+          setNewImage(null);
+          setImagePreview(null);
+          
+          // Reset file input
+          const fileInput = document.getElementById('doctor-image-input');
+          if (fileInput) fileInput.value = '';
+          
+          setTimeout(() => setUploadSuccess(false), 3000);
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          alert('Error al subir la imagen. Por favor intente nuevamente.');
+        }
+      };
+      reader.readAsDataURL(newImage);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      alert('Error al procesar la imagen');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-blue-900 mb-2">
+              📸 Gestión de Imagen del Doctor
+            </h1>
+            <p className="text-gray-600">
+              Actualice la foto del Dr. Zerquera que aparece en la aplicación
+            </p>
+          </div>
+
+          {uploadSuccess && (
+            <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+              <strong className="font-bold">¡Éxito!</strong>
+              <span className="block sm:inline"> La imagen del doctor ha sido actualizada correctamente.</span>
+            </div>
+          )}
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Current Image */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                🖼️ Imagen Actual
+              </h2>
+              <div className="border-2 border-gray-200 rounded-lg p-4">
+                {currentImage ? (
+                  <img
+                    src={currentImage}
+                    alt="Dr. Pablo Zerquera - Actual"
+                    className="w-full h-80 object-cover object-center rounded-lg shadow-md"
+                    style={{ objectPosition: 'center top' }}
+                  />
+                ) : (
+                  <div className="w-full h-80 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-gray-500">
+                      <span className="text-6xl mb-4 block">👤</span>
+                      <p>No hay imagen actual</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Upload New Image */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                📤 Subir Nueva Imagen
+              </h2>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                <div className="text-center">
+                  <input
+                    type="file"
+                    id="doctor-image-input"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="doctor-image-input"
+                    className="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    📁 Seleccionar Imagen
+                  </label>
+                  <p className="mt-2 text-sm text-gray-500">
+                    JPG, PNG o GIF hasta 5MB
+                  </p>
+                </div>
+
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div className="mt-4">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">Vista Previa:</p>
+                    <img
+                      src={imagePreview}
+                      alt="Vista previa"
+                      className="w-full h-80 object-cover object-center rounded-lg shadow-md"
+                      style={{ objectPosition: 'center top' }}
+                    />
+                    
+                    <div className="mt-4 text-center">
+                      <button
+                        onClick={uploadImage}
+                        disabled={loading}
+                        className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loading ? '⏳ Subiendo...' : '✅ Confirmar y Subir'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Tips */}
+          <div className="mt-8 bg-blue-50 p-6 rounded-lg">
+            <h3 className="text-lg font-bold text-blue-900 mb-4">
+              💡 Consejos para la mejor imagen
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <h4 className="font-semibold mb-2">✅ Recomendaciones:</h4>
+                <ul className="list-disc list-inside text-gray-700 space-y-1">
+                  <li>Imagen profesional y clara</li>
+                  <li>Fondo neutro o de consultorio</li>
+                  <li>Resolución mínima: 800x800 píxeles</li>
+                  <li>Formato preferido: JPG o PNG</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-2">⚠️ Evitar:</h4>
+                <ul className="list-disc list-inside text-gray-700 space-y-1">
+                  <li>Imágenes borrosas o pixeladas</li>
+                  <li>Fotos cortadas o mal encuadradas</li>
+                  <li>Archivos muy pesados (+5MB)</li>
+                  <li>Imágenes informales o no profesionales</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="mt-8 text-center space-x-4">
+            <button
+              onClick={() => setCurrentPage('admin')}
+              className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-semibold"
+            >
+              ← Volver al Panel de Admin
+            </button>
+            
+            <button
+              onClick={() => setCurrentPage('doctor')}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
+            >
+              👀 Ver Página del Doctor
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ContactPage = ({ setCurrentPage }) => {
   const [contactInfo, setContactInfo] = useState(null);
   const [contactForm, setContactForm] = useState({
