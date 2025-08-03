@@ -681,8 +681,19 @@ class BackendTester:
         self.test_appointment_creation()
         self.test_get_appointments()
         
+        # NEW: Appointment confirmation system tests
+        self.test_appointment_confirmation()
+        self.test_appointment_model_updates()
+        
         # Message system
         self.test_message_system()
+        
+        # NEW: Admin notification polling tests
+        self.test_admin_message_polling()
+        self.test_message_notification_system()
+        
+        # NEW: Confirmation message tests
+        self.test_confirmation_messages()
         
         # Flyer management
         self.test_flyer_management()
