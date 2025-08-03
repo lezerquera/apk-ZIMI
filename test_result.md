@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Set up permanent domain configuration for Dr. Zerquera's PWA application to work with custom domain like app.drzerquera.com"
+user_problem_statement: "Fix appointment workflow and notification issues: 1) Doctor cannot assign date/time when confirming appointments - only shows 'Confirm' button without date selection, 2) Patients don't receive visual notification when appointments are confirmed, 3) Doctor doesn't receive notifications when patients send messages"
 
 backend:
   - task: "Domain Configuration Backend Setup"
