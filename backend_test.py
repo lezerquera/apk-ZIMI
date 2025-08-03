@@ -34,6 +34,8 @@ class BackendTester:
     def __init__(self):
         self.test_results = []
         self.patient_id = None
+        self.patient_email = None
+        self.patient_phone = None
         self.appointment_id = None
         self.message_id = None
         
