@@ -1633,8 +1633,6 @@ const AppointmentsPage = ({ setCurrentPage }) => {
                     <option value="emergencia">🔴 Emergencia - Atención inmediata (24 horas)</option>
                   </select>
                 </div>
-              </div>
-            </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
