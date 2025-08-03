@@ -12,6 +12,11 @@ from typing import List, Optional
 import uuid
 from datetime import datetime, timedelta
 from enum import Enum
+import base64
+
+# Pydantic models for request bodies
+class DoctorImageUpdate(BaseModel):
+    image_data: str
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
