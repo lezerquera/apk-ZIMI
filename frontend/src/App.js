@@ -1575,20 +1575,19 @@ const AppointmentsPage = ({ setCurrentPage }) => {
                 </div>
               </div>
               
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Correo Electrónico *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={appointmentData.patient_email}
-                    onChange={(e) => setAppointmentData({...appointmentData, patient_email: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-                    placeholder="su-email@ejemplo.com"
-                  />
-                </div>
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Correo Electrónico *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={appointmentData.patient_email}
+                  onChange={(e) => setAppointmentData({...appointmentData, patient_email: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                  placeholder="su-email@ejemplo.com"
+                />
+              </div>
               </div>
             </div>
 
