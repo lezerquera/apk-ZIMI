@@ -1162,7 +1162,8 @@ const HomePage = ({ setCurrentPage }) => {
                 <img
                   src={doctorInfo.imagen}
                   alt="Dr. Pablo Zerquera"
-                  className="w-full h-96 object-cover rounded-lg shadow-lg"
+                  className="w-full h-96 object-cover object-center rounded-lg shadow-lg"
+                  style={{ objectPosition: 'center top' }}
                 />
               </div>
               <div>
