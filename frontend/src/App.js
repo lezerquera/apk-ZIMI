@@ -1050,7 +1050,7 @@ const Header = ({ currentPage, setCurrentPage, user, logout }) => {
   );
 };
 
-// Component to handle Emergent branding interference
+// Component to handle Emergent branding interference and notifications
 const EmergentBrandingFix = () => {
   useEffect(() => {
     // Function to hide or reposition Emergent branding elements
@@ -1092,6 +1092,140 @@ const EmergentBrandingFix = () => {
   }, []);
   
   return null; // This component doesn't render anything
+};
+
+// Admin Notification System with Sound
+const AdminNotificationSystem = ({ user, messages, appointments }) => {
+  const [lastMessageCount, setLastMessageCount] = useState(0);
+  const [lastAppointmentCount, setLastAppointmentCount] = useState(0);
+  const [audioContext, setAudioContext] = useState(null);
+  
+  useEffect(() => {
+    // Initialize audio context for sound notifications
+    if (user?.role === 'admin' && !audioContext) {
+      // Create audio context after user interaction (to avoid browser restrictions)
+      const initAudio = () => {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          setAudioContext(ctx);
+          document.removeEventListener('click', initAudio);
+          document.removeEventListener('touchstart', initAudio);
+        } catch (error) {
+          console.log('Audio context not supported');
+        }
+      };
+      
+      document.addEventListener('click', initAudio);
+      document.addEventListener('touchstart', initAudio);
+    }
+  }, [user, audioContext]);
+  
+  // Play notification sound
+  const playNotificationSound = (type = 'message') => {
+    if (!audioContext) return;
+    
+    try {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Different tones for different notifications
+      if (type === 'message') {
+        // Higher pitch for messages
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+      } else if (type === 'appointment') {
+        // Lower, more urgent tone for appointments
+        oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(500, audioContext.currentTime + 0.1);
+        oscillator.frequency.setValueAtTime(400, audioContext.currentTime + 0.2);
+      }
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (error) {
+      console.log('Could not play notification sound:', error);
+    }
+  };
+  
+  // Check for new messages
+  useEffect(() => {
+    if (user?.role === 'admin' && messages.length > 0) {
+      const unreadMessages = messages.filter(msg => 
+        !msg.is_read && msg.receiver_id === 'admin'
+      ).length;
+      
+      if (unreadMessages > lastMessageCount && lastMessageCount > 0) {
+        // New message received!
+        playNotificationSound('message');
+        
+        // Show visual notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-pulse';
+        notification.innerHTML = `
+          <div class="flex items-center">
+            <span class="text-2xl mr-2">💬</span>
+            <div>
+              <p class="font-bold">Nuevo Mensaje</p>
+              <p class="text-sm">Tiene ${unreadMessages} mensaje${unreadMessages > 1 ? 's' : ''} sin leer</p>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 5000);
+      }
+      
+      setLastMessageCount(unreadMessages);
+    }
+  }, [messages, lastMessageCount, user, audioContext]);
+  
+  // Check for new appointments
+  useEffect(() => {
+    if (user?.role === 'admin' && appointments.length > 0) {
+      const pendingAppointments = appointments.filter(apt => 
+        apt.status === 'solicitada'
+      ).length;
+      
+      if (pendingAppointments > lastAppointmentCount && lastAppointmentCount >= 0) {
+        // New appointment request!
+        playNotificationSound('appointment');
+        
+        // Show visual notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-bounce';
+        notification.innerHTML = `
+          <div class="flex items-center">
+            <span class="text-2xl mr-2">📅</span>
+            <div>
+              <p class="font-bold">Nueva Solicitud de Cita</p>
+              <p class="text-sm">Tiene ${pendingAppointments} cita${pendingAppointments > 1 ? 's' : ''} pendiente${pendingAppointments > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 5000);
+      }
+      
+      setLastAppointmentCount(pendingAppointments);
+    }
+  }, [appointments, lastAppointmentCount, user, audioContext]);
+  
+  return null;
 };
 
 const MobileNav = ({ currentPage, setCurrentPage, user }) => {
