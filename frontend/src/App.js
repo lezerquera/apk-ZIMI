@@ -3965,6 +3965,15 @@ function App() {
       {/* Component to handle Emergent branding interference */}
       <EmergentBrandingFix />
       
+      {/* Admin notification system with sound */}
+      {user?.role === 'admin' && (
+        <AdminNotificationSystem 
+          user={user} 
+          messages={messages} 
+          appointments={appointments || []} 
+        />
+      )}
+      
       {showHeader && (
         <Header 
           currentPage={currentPage} 
