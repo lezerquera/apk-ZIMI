@@ -259,6 +259,42 @@ frontend:
         -agent: "testing"
         -comment: "API integration verified: All endpoints responding correctly (/api/, /api/services, /api/doctor-info, /api/contact-info). Services data returns 10 medical services. Doctor information and contact data properly structured. Frontend-backend communication working seamlessly."
 
+  - task: "Admin Appointment Confirmation with Date Selection"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Current admin panel only shows 'Confirmar Cita' button without date/time selection. Doctor needs ability to assign specific date and time when confirming appointments. Need to add date/time picker UI for appointment confirmation."
+
+  - task: "Patient Appointment Status Visibility"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Patients cannot see when their appointments are confirmed or what date/time was assigned. Need to add patient dashboard showing appointment status and assigned date/time with visual notifications."
+
+  - task: "Admin Message Notification System Fix"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "AdminNotificationSystem exists but doctor reports not receiving notifications when patients send messages. Need to debug and fix the notification polling system for admin messages."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
