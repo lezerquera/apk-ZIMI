@@ -511,6 +511,24 @@ def create_default_flyer(service_id: str):
         **default_data
     }
 
+# Add route to serve doctor image
+@api_router.get("/doctor-image/current")
+async def get_current_doctor_image():
+    """Serve the current doctor image"""
+    # For now, return a placeholder or redirect to the uploaded image
+    # In production, this would serve from a database or file storage
+    import base64
+    from fastapi.responses import Response
+    
+    # Base64 image data for Dr. Zerquera (you can replace this with the uploaded image)
+    # This is a placeholder - in production you'd store the actual image
+    image_data = """iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9Ddpe7gAAAABJRU5ErkJggg=="""
+    
+    # Convert base64 to bytes
+    image_bytes = base64.b64decode(image_data)
+    
+    return Response(content=image_bytes, media_type="image/png")
+
 # Add route to update doctor image (Admin only)
 @api_router.post("/admin/doctor-image")
 async def update_doctor_image(image_data: str):
