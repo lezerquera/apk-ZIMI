@@ -2571,6 +2571,134 @@ const AdminPage = ({ setCurrentPage }) => {
           </div>
         </div>
       </div>
+
+      {/* Appointment Confirmation Modal */}
+      {confirmingAppointment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    📅 Confirmar Cita
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    Paciente: <strong>{confirmingAppointment.patient_name}</strong>
+                  </p>
+                  <p className="text-gray-600">
+                    Servicio: <strong>{confirmingAppointment.service_type.replace('_', ' ').toUpperCase()}</strong>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setConfirmingAppointment(null)}
+                  className="text-gray-600 hover:text-gray-800 text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Date and Time Selection */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      📅 Fecha de la Cita *
+                    </label>
+                    <input
+                      type="date"
+                      value={confirmationData.assigned_date}
+                      onChange={(e) => setConfirmationData({...confirmationData, assigned_date: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      🕐 Hora de la Cita *
+                    </label>
+                    <select
+                      value={confirmationData.assigned_time}
+                      onChange={(e) => setConfirmationData({...confirmationData, assigned_time: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
+                    >
+                      <option value="08:00">8:00 AM</option>
+                      <option value="08:30">8:30 AM</option>
+                      <option value="09:00">9:00 AM</option>
+                      <option value="09:30">9:30 AM</option>
+                      <option value="10:00">10:00 AM</option>
+                      <option value="10:30">10:30 AM</option>
+                      <option value="11:00">11:00 AM</option>
+                      <option value="11:30">11:30 AM</option>
+                      <option value="12:00">12:00 PM</option>
+                      <option value="12:30">12:30 PM</option>
+                      <option value="13:00">1:00 PM</option>
+                      <option value="13:30">1:30 PM</option>
+                      <option value="14:00">2:00 PM</option>
+                      <option value="14:30">2:30 PM</option>
+                      <option value="15:00">3:00 PM</option>
+                      <option value="15:30">3:30 PM</option>
+                      <option value="16:00">4:00 PM</option>
+                      <option value="16:30">4:30 PM</option>
+                      <option value="17:00">5:00 PM</option>
+                      <option value="17:30">5:30 PM</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Telemedicine Link (if applicable) */}
+                {confirmingAppointment.appointment_type === 'telemedicina' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      💻 Link de Telemedicina
+                    </label>
+                    <input
+                      type="url"
+                      value={confirmationData.telemedicine_link}
+                      onChange={(e) => setConfirmationData({...confirmationData, telemedicine_link: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="https://meet.google.com/abc-def-ghi"
+                    />
+                    <p className="text-sm text-gray-500 mt-1">
+                      Ejemplos: Google Meet, Zoom, Teams, etc.
+                    </p>
+                  </div>
+                )}
+
+                {/* Doctor Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    📝 Notas Adicionales (Opcional)
+                  </label>
+                  <textarea
+                    value={confirmationData.doctor_notes}
+                    onChange={(e) => setConfirmationData({...confirmationData, doctor_notes: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Instrucciones especiales, preparación previa, etc."
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-4 pt-4">
+                  <button
+                    onClick={submitConfirmation}
+                    disabled={!confirmationData.assigned_date || !confirmationData.assigned_time}
+                    className="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg"
+                  >
+                    ✅ Confirmar Cita
+                  </button>
+                  <button
+                    onClick={() => setConfirmingAppointment(null)}
+                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-semibold text-lg"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
