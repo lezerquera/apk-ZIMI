@@ -3993,11 +3993,23 @@ const PatientProfilePage = ({ setCurrentPage, user }) => {
                         
                         <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
                           <div>
-                            <span className="font-medium">Fecha:</span> {appointment.fecha_solicitada}
+                            <span className="font-medium">Fecha Solicitada:</span> {appointment.fecha_solicitada}
                           </div>
                           <div>
-                            <span className="font-medium">Hora:</span> {appointment.hora_solicitada}
+                            <span className="font-medium">Hora Solicitada:</span> {appointment.hora_solicitada}
                           </div>
+                          {appointment.assigned_date && (
+                            <div className="bg-green-50 p-2 rounded">
+                              <span className="font-medium text-green-800">📅 Fecha Asignada:</span> 
+                              <span className="text-green-900 font-semibold"> {appointment.assigned_date}</span>
+                            </div>
+                          )}
+                          {appointment.assigned_time && (
+                            <div className="bg-green-50 p-2 rounded">
+                              <span className="font-medium text-green-800">🕐 Hora Asignada:</span> 
+                              <span className="text-green-900 font-semibold"> {appointment.assigned_time}</span>
+                            </div>
+                          )}
                           <div>
                             <span className="font-medium">Tipo:</span> {
                               appointment.appointment_type === 'telemedicina' ? '💻 Telemedicina' : '🏥 Presencial'
@@ -4007,6 +4019,37 @@ const PatientProfilePage = ({ setCurrentPage, user }) => {
                             <span className="font-medium">Creada:</span> {new Date(appointment.created_at).toLocaleDateString()}
                           </div>
                         </div>
+                        
+                        {/* Status-specific messages */}
+                        {appointment.status === 'solicitada' && (
+                          <div className="mt-3 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                            <p className="text-yellow-800 text-sm">
+                              ⏳ <strong>Su solicitud está siendo revisada</strong><br/>
+                              El Dr. Zerquera asignará la fecha más conveniente según su nivel de urgencia.
+                              Recibirá una notificación cuando sea confirmada.
+                            </p>
+                          </div>
+                        )}
+                        
+                        {appointment.status === 'confirmada' && (
+                          <div className="mt-3 p-3 bg-green-50 border-l-4 border-green-400 rounded">
+                            <p className="text-green-800 text-sm font-medium">
+                              ✅ <strong>¡Cita Confirmada!</strong><br/>
+                              {appointment.assigned_date && appointment.assigned_time && (
+                                <span>Su cita es el <strong>{appointment.assigned_date}</strong> a las <strong>{appointment.assigned_time}</strong></span>
+                              )}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {appointment.doctor_notes && (
+                          <div className="mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
+                            <p className="text-blue-800 text-sm">
+                              <strong>📝 Notas del Doctor:</strong><br/>
+                              {appointment.doctor_notes}
+                            </p>
+                          </div>
+                        )}
                         
                         {appointment.mensaje && (
                           <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
