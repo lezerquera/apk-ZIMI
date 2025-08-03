@@ -549,7 +549,9 @@ class BackendTester:
                             message_content = confirmation_message.get("message", "")
                             has_date = confirmation_data["assigned_date"] in message_content
                             has_time = confirmation_data["assigned_time"] in message_content
-                            has_service = "medicina_funcional" in message_content.lower()
+                            # Check for service type in different formats
+                            service_variations = ["medicina_funcional", "medicina funcional", "Medicina Funcional"]
+                            has_service = any(variation in message_content for variation in service_variations)
                             has_telemedicine_link = confirmation_data["telemedicine_link"] in message_content
                             has_doctor_notes = confirmation_data["doctor_notes"] in message_content
                             
@@ -565,6 +567,8 @@ class BackendTester:
                                 if not has_date: missing.append("date")
                                 if not has_time: missing.append("time")
                                 if not has_service: missing.append("service")
+                                # Debug: print actual message content for troubleshooting
+                                print(f"DEBUG - Message content preview: {message_content[:200]}...")
                                 self.log_test("Confirmation Messages", False, f"Confirmation message missing: {missing}")
                         else:
                             self.log_test("Confirmation Messages", False, "No confirmation message found for patient")
