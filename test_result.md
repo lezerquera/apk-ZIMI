@@ -121,28 +121,34 @@ backend:
         -comment: "Comprehensive testing completed with 100% success rate. All 19 test cases passed including: API endpoints (GET /api/, /api/services, /api/doctor-info, /api/contact-info, POST /api/appointments), authentication endpoints (patient registration/login, admin login), message system endpoints, flyer management, CORS configuration, error handling, MongoDB connectivity, and environment variables. Backend is fully functional and ready for production."
 
   - task: "Appointment Confirmation with Date Assignment"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "main"
         -comment: "Current appointment confirmation endpoint only accepts telemedicine_link but doctor needs to assign specific date and time when confirming appointments. Need to modify the confirm endpoint to accept date/time parameters and update the appointment model."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ COMPREHENSIVE TESTING COMPLETED - Appointment confirmation system fully functional. Verified: 1) AppointmentConfirmation model correctly accepts assigned_date, assigned_time, telemedicine_link, and doctor_notes. 2) PUT /api/appointments/{id}/confirm endpoint successfully updates appointments with all new fields. 3) Appointment model properly stores assigned_date, assigned_time, and doctor_notes. 4) Confirmation response includes all appointment details and patient notification status. 5) Status correctly changes to 'confirmada' with confirmed_at timestamp. All appointment confirmation functionality working as expected."
 
   - task: "Message Notifications for Admin"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "main"
         -comment: "Need to implement backend endpoint to track unread message count for admin and provide real-time notification updates when patients send messages to admin."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ COMPREHENSIVE TESTING COMPLETED - Admin message notification system fully functional. Verified: 1) GET /api/admin/messages/poll endpoint returns correct unread_count for admin. 2) latest_messages array contains recent unread messages with proper structure (id, sender_name, subject, created_at). 3) Unread count increases correctly when patients send messages to admin. 4) Message notification system properly tracks and counts unread messages. 5) Polling endpoint handles empty states gracefully. All admin notification functionality working as expected."
 
 frontend:
   - task: "PWA Domain Configuration"
