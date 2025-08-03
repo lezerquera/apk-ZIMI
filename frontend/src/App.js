@@ -1522,9 +1522,21 @@ const AppointmentsPage = ({ setCurrentPage }) => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-2xl">
-        <h1 className="text-4xl font-bold text-center mb-8 text-blue-900">
-          Solicitar Cita Médica
+        <h1 className="text-4xl font-bold text-center mb-4 text-blue-900">
+          Solicitar Consulta Médica
         </h1>
+        
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg mb-8">
+          <div className="flex items-center mb-3">
+            <span className="text-2xl mr-3">🩺</span>
+            <h2 className="text-xl font-semibold text-blue-900">Proceso Profesional de Citas</h2>
+          </div>
+          <p className="text-blue-800 leading-relaxed">
+            El <strong>Dr. Pablo Zerquera</strong> evaluará personalmente su solicitud y le asignará 
+            la fecha más apropiada según su condición médica y urgencia. Recibirá confirmación 
+            detallada en <strong>24-48 horas</strong> con toda la información necesaria.
+          </p>
+        </div>
         
         <div className="bg-white rounded-lg shadow-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
