@@ -2477,22 +2477,22 @@ const AdminPage = ({ setCurrentPage }) => {
                         {appointment.status === 'solicitada' && (
                           <div className="space-y-2">
                             <button
-                              onClick={() => confirmAppointment(appointment.id)}
-                              className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 block"
+                              onClick={() => confirmAppointment(appointment.id, false)}
+                              className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 block w-full"
                             >
-                              ✅ Confirmar
+                              📅 Asignar Fecha
                             </button>
-                            {appointment.appointment_type === 'telemedicina' && (
-                              <button
-                                onClick={() => {
-                                  const link = prompt('Ingrese el link de telemedicina:');
-                                  if (link) confirmAppointment(appointment.id, link);
-                                }}
-                                className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 block"
-                              >
-                                💻 + Link
-                              </button>
-                            )}
+                            <button
+                              onClick={() => confirmAppointment(appointment.id, true)}
+                              className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 block w-full"
+                            >
+                              ⚡ Rápido
+                            </button>
+                          </div>
+                        )}
+                        {appointment.status === 'confirmada' && (
+                          <div className="text-xs text-green-600">
+                            ✅ {appointment.assigned_date} {appointment.assigned_time}
                           </div>
                         )}
                         <a
