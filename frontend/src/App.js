@@ -2137,18 +2137,82 @@ const AdminPage = ({ setCurrentPage }) => {
     fetchData();
   }, []);
 
-  const confirmAppointment = async (appointmentId, telemedicineLink = null) => {
-    try {
-      const url = `${API}/appointments/${appointmentId}/confirm`;
-      const data = telemedicineLink ? { telemedicine_link: telemedicineLink } : {};
+  const [confirmingAppointment, setConfirmingAppointment] = useState(null);
+  const [confirmationData, setConfirmationData] = useState({
+    assigned_date: '',
+    assigned_time: '',
+    telemedicine_link: '',
+    doctor_notes: ''
+  });
+
+  const confirmAppointment = async (appointmentId, directConfirm = false) => {
+    if (directConfirm) {
+      // Direct confirmation without modal (for quick confirm)
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
       
-      await axios.put(url, data);
+      const defaultData = {
+        assigned_date: tomorrow.toISOString().split('T')[0],
+        assigned_time: '09:00',
+        telemedicine_link: '',
+        doctor_notes: 'Cita confirmada. Por favor contacte nuestra oficina si necesita más información.'
+      };
+      
+      try {
+        await axios.put(`${API}/appointments/${appointmentId}/confirm`, defaultData);
+        
+        // Refresh appointments
+        const response = await axios.get(`${API}/appointments`);
+        setAppointments(response.data);
+        
+        alert('Cita confirmada exitosamente para mañana a las 9:00 AM');
+      } catch (error) {
+        console.error('Error confirming appointment:', error);
+        alert('Error al confirmar la cita');
+      }
+    } else {
+      // Open confirmation modal
+      const appointment = appointments.find(apt => apt.id === appointmentId);
+      setConfirmingAppointment(appointment);
+      
+      // Set default values
+      const today = new Date();
+      const nextWeek = new Date(today);
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      
+      setConfirmationData({
+        assigned_date: nextWeek.toISOString().split('T')[0],
+        assigned_time: '10:00',
+        telemedicine_link: appointment?.appointment_type === 'telemedicina' ? 'https://meet.google.com/' : '',
+        doctor_notes: ''
+      });
+    }
+  };
+
+  const submitConfirmation = async () => {
+    if (!confirmationData.assigned_date || !confirmationData.assigned_time) {
+      alert('Por favor seleccione fecha y hora para la cita');
+      return;
+    }
+
+    try {
+      await axios.put(`${API}/appointments/${confirmingAppointment.id}/confirm`, confirmationData);
       
       // Refresh appointments
       const response = await axios.get(`${API}/appointments`);
       setAppointments(response.data);
       
-      alert('Cita confirmada exitosamente');
+      // Close modal
+      setConfirmingAppointment(null);
+      setConfirmationData({
+        assigned_date: '',
+        assigned_time: '',
+        telemedicine_link: '',
+        doctor_notes: ''
+      });
+      
+      alert('Cita confirmada exitosamente con fecha y hora asignada');
     } catch (error) {
       console.error('Error confirming appointment:', error);
       alert('Error al confirmar la cita');
