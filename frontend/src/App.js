@@ -1707,6 +1707,7 @@ const DoctorPage = ({ setCurrentPage }) => {
                 src={doctorInfo.imagen}
                 alt={doctorInfo.nombre}
                 className="w-full max-w-sm h-80 object-cover object-center rounded-lg shadow-2xl mx-auto border-4 border-white"
+                style={{ objectPosition: 'center top' }}
               />
             </div>
           </div>
