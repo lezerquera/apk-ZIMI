@@ -532,17 +532,39 @@ const MessagingPage = ({ setCurrentPage, user }) => {
         { message: replyText },
         {
           params: {
-            sender_id: user.id,
+            sender_id: user.role === 'admin' ? 'admin' : user.id,
             sender_name: user.role === 'admin' ? 'Dr. Zerquera' : user.name
           }
         }
       );
       fetchMessages();
       setSelectedMessage(null);
-      alert('Respuesta enviada exitosamente');
+      
+      // Show success notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      notification.textContent = '✅ Respuesta enviada exitosamente';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 3000);
     } catch (error) {
       console.error('Error replying to message:', error);
-      alert('Error enviando la respuesta');
+      
+      // Show error notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      notification.textContent = '❌ Error enviando la respuesta';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 3000);
     }
   };
 
