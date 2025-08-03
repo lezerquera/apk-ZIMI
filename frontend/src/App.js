@@ -508,9 +508,8 @@ const MessagingPage = ({ setCurrentPage, user }) => {
           notification.parentNode.removeChild(notification);
         }
       }, 3000);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
     } finally {
       setLoading(false);
