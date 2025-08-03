@@ -5,6 +5,81 @@
     color: #333;
 }
 
+/* Accessibility improvements for elderly users */
+.elderly-friendly-button {
+    min-height: 48px; /* Minimum touch target size */
+    min-width: 48px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.elderly-friendly-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.elderly-friendly-button:focus {
+    outline: 3px solid #3B82F6;
+    outline-offset: 2px;
+}
+
+/* Large text for better readability */
+.large-text {
+    font-size: 1.2rem;
+    line-height: 1.8;
+}
+
+/* High contrast colors for better visibility */
+.high-contrast-text {
+    color: #1F2937;
+    font-weight: 600;
+}
+
+/* Back button specific styling */
+.back-button {
+    background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+    color: white;
+    border: none;
+    min-height: 56px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 16px 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: linear-gradient(135deg, #4B5563 0%, #374151 100%);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Close button for modals - extra large for elderly */
+.modal-close-button {
+    background: #EF4444;
+    color: white;
+    min-width: 56px;
+    min-height: 56px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    transition: all 0.3s ease;
+}
+
+.modal-close-button:hover {
+    background: #DC2626;
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
