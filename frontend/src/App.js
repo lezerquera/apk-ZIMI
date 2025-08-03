@@ -1015,6 +1015,50 @@ const Header = ({ currentPage, setCurrentPage, user, logout }) => {
   );
 };
 
+// Component to handle Emergent branding interference
+const EmergentBrandingFix = () => {
+  useEffect(() => {
+    // Function to hide or reposition Emergent branding elements
+    const hideEmergentBranding = () => {
+      // Look for common Emergent branding selectors
+      const selectors = [
+        'div[class*="emergent"]',
+        'div[id*="emergent"]', 
+        'a[href*="emergent"]',
+        'iframe[src*="emergent"]',
+        '[class*="made-with"]',
+        '[class*="powered-by"]'
+      ];
+      
+      selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+          // Instead of hiding, move it up to not interfere with navigation
+          if (element.style.position === 'fixed' && element.style.bottom) {
+            element.style.bottom = '100px'; // Move above navigation bar
+            element.style.zIndex = '9998'; // Below navigation but above content
+          }
+        });
+      });
+    };
+    
+    // Run immediately and also after a delay
+    hideEmergentBranding();
+    const timer = setTimeout(hideEmergentBranding, 1000);
+    
+    // Also run when DOM changes
+    const observer = new MutationObserver(hideEmergentBranding);
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, []);
+  
+  return null; // This component doesn't render anything
+};
+
 const MobileNav = ({ currentPage, setCurrentPage, user }) => {
   // Filter navigation items based on user role
   const getNavItems = () => {
