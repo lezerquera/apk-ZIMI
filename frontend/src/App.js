@@ -3539,7 +3539,9 @@ function App() {
       setIsLoading(false);
     };
 
-    initializeApp();
+    // Add a small delay to ensure DOM is ready
+    const timer = setTimeout(initializeApp, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   // Save user to localStorage when authenticated
