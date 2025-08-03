@@ -364,6 +364,210 @@ class BackendTester:
         except Exception as e:
             self.log_test("Message System", False, error=e)
 
+    def test_admin_message_polling(self):
+        """Test GET /api/admin/messages/poll endpoint"""
+        try:
+            # First, send a message to admin to ensure there's something to poll
+            if self.patient_id:
+                message_data = {
+                    "receiver_id": "admin",
+                    "receiver_name": "Dr. Zerquera",
+                    "subject": "Pregunta urgente sobre cita",
+                    "message": "¿Puedo cambiar la fecha de mi cita programada?",
+                    "message_type": "appointment"
+                }
+                
+                requests.post(f"{API_BASE}/messages", 
+                            json=message_data,
+                            params={
+                                "sender_id": self.patient_id,
+                                "sender_name": "Carlos Mendez"
+                            },
+                            timeout=10)
+            
+            # Test admin message polling
+            response = requests.get(f"{API_BASE}/admin/messages/poll", timeout=10)
+            
+            if response.status_code == 200:
+                poll_data = response.json()
+                
+                # Check required fields
+                has_unread_count = "unread_count" in poll_data
+                has_latest_messages = "latest_messages" in poll_data
+                unread_count = poll_data.get("unread_count", 0)
+                latest_messages = poll_data.get("latest_messages", [])
+                
+                if has_unread_count and has_latest_messages:
+                    # Verify message structure if there are messages
+                    if latest_messages and len(latest_messages) > 0:
+                        first_message = latest_messages[0]
+                        required_fields = ["id", "sender_name", "subject", "created_at"]
+                        has_all_fields = all(field in first_message for field in required_fields)
+                        
+                        if has_all_fields:
+                            self.log_test("Admin Message Polling", True, 
+                                        f"Poll successful: {unread_count} unread messages, {len(latest_messages)} latest messages")
+                        else:
+                            missing_fields = [field for field in required_fields if field not in first_message]
+                            self.log_test("Admin Message Polling", False, f"Message missing fields: {missing_fields}")
+                    else:
+                        self.log_test("Admin Message Polling", True, 
+                                    f"Poll successful: {unread_count} unread messages (no recent messages)")
+                else:
+                    missing_fields = []
+                    if not has_unread_count: missing_fields.append("unread_count")
+                    if not has_latest_messages: missing_fields.append("latest_messages")
+                    self.log_test("Admin Message Polling", False, f"Missing response fields: {missing_fields}")
+            else:
+                self.log_test("Admin Message Polling", False, f"Status: {response.status_code}, Response: {response.text}")
+        except Exception as e:
+            self.log_test("Admin Message Polling", False, error=e)
+
+    def test_message_notification_system(self):
+        """Test that messages sent to admin are properly counted"""
+        try:
+            if not self.patient_id:
+                self.log_test("Message Notification System", False, "No patient ID available for testing")
+                return
+            
+            # Get initial unread count
+            response = requests.get(f"{API_BASE}/admin/messages/poll", timeout=10)
+            initial_count = 0
+            if response.status_code == 200:
+                initial_count = response.json().get("unread_count", 0)
+            
+            # Send a new message to admin
+            message_data = {
+                "receiver_id": "admin",
+                "receiver_name": "Dr. Zerquera",
+                "subject": "Test notification message",
+                "message": "This is a test message to verify notification counting.",
+                "message_type": "general"
+            }
+            
+            send_response = requests.post(f"{API_BASE}/messages", 
+                                        json=message_data,
+                                        params={
+                                            "sender_id": self.patient_id,
+                                            "sender_name": "Carlos Mendez"
+                                        },
+                                        timeout=10)
+            
+            if send_response.status_code == 200:
+                # Check if unread count increased
+                response = requests.get(f"{API_BASE}/admin/messages/poll", timeout=10)
+                if response.status_code == 200:
+                    new_count = response.json().get("unread_count", 0)
+                    
+                    if new_count > initial_count:
+                        self.log_test("Message Notification System", True, 
+                                    f"Unread count increased from {initial_count} to {new_count}")
+                    else:
+                        self.log_test("Message Notification System", False, 
+                                    f"Unread count did not increase (was {initial_count}, now {new_count})")
+                else:
+                    self.log_test("Message Notification System", False, "Could not verify unread count after sending message")
+            else:
+                self.log_test("Message Notification System", False, "Failed to send test message")
+                
+        except Exception as e:
+            self.log_test("Message Notification System", False, error=e)
+
+    def test_confirmation_messages(self):
+        """Test that appointment confirmation sends automated message to patient"""
+        if not self.appointment_id or not self.patient_id:
+            self.log_test("Confirmation Messages", False, "No appointment or patient ID available for testing")
+            return
+            
+        try:
+            # Get initial message count for patient
+            response = requests.get(f"{API_BASE}/messages/{self.patient_id}", timeout=10)
+            initial_message_count = 0
+            if response.status_code == 200:
+                initial_message_count = len(response.json())
+            
+            # Create a new appointment to confirm (since we already confirmed the first one)
+            appointment_data = {
+                "patient_name": "Ana Garcia",
+                "patient_email": "ana.garcia@email.com",
+                "patient_phone": "+1 305 555 0789",
+                "service_type": "medicina_funcional",
+                "appointment_type": "telemedicina",
+                "fecha_solicitada": "2025-01-22",
+                "hora_solicitada": "15:00",
+                "mensaje": "Consulta de seguimiento"
+            }
+            
+            create_response = requests.post(f"{API_BASE}/appointments", 
+                                          json=appointment_data, 
+                                          timeout=10)
+            
+            if create_response.status_code == 200:
+                new_appointment = create_response.json()
+                new_appointment_id = new_appointment.get("id")
+                new_patient_id = new_appointment.get("patient_id")
+                
+                # Confirm the new appointment
+                confirmation_data = {
+                    "assigned_date": "2025-01-28",
+                    "assigned_time": "16:00",
+                    "telemedicine_link": "https://zoom.us/j/123456789",
+                    "doctor_notes": "Consulta de medicina funcional. Prepare lista de síntomas actuales."
+                }
+                
+                confirm_response = requests.put(f"{API_BASE}/appointments/{new_appointment_id}/confirm", 
+                                              json=confirmation_data, 
+                                              timeout=10)
+                
+                if confirm_response.status_code == 200:
+                    # Check if patient received confirmation message
+                    response = requests.get(f"{API_BASE}/messages/{new_patient_id}", timeout=10)
+                    if response.status_code == 200:
+                        messages = response.json()
+                        
+                        # Look for confirmation message
+                        confirmation_message = None
+                        for message in messages:
+                            if (message.get("message_type") == "appointment_confirmation" and
+                                message.get("sender_id") == "admin" and
+                                "Cita Confirmada" in message.get("subject", "")):
+                                confirmation_message = message
+                                break
+                        
+                        if confirmation_message:
+                            # Verify message contains appointment details
+                            message_content = confirmation_message.get("message", "")
+                            has_date = confirmation_data["assigned_date"] in message_content
+                            has_time = confirmation_data["assigned_time"] in message_content
+                            has_service = "medicina_funcional" in message_content.lower()
+                            has_telemedicine_link = confirmation_data["telemedicine_link"] in message_content
+                            has_doctor_notes = confirmation_data["doctor_notes"] in message_content
+                            
+                            if has_date and has_time and has_service:
+                                details = f"Contains date, time, service"
+                                if has_telemedicine_link: details += ", telemedicine link"
+                                if has_doctor_notes: details += ", doctor notes"
+                                
+                                self.log_test("Confirmation Messages", True, 
+                                            f"Patient received confirmation message with appointment details. {details}")
+                            else:
+                                missing = []
+                                if not has_date: missing.append("date")
+                                if not has_time: missing.append("time")
+                                if not has_service: missing.append("service")
+                                self.log_test("Confirmation Messages", False, f"Confirmation message missing: {missing}")
+                        else:
+                            self.log_test("Confirmation Messages", False, "No confirmation message found for patient")
+                    else:
+                        self.log_test("Confirmation Messages", False, "Could not retrieve patient messages")
+                else:
+                    self.log_test("Confirmation Messages", False, f"Appointment confirmation failed: {confirm_response.status_code}")
+            else:
+                self.log_test("Confirmation Messages", False, "Could not create test appointment")
+                
+        except Exception as e:
+            self.log_test("Confirmation Messages", False, error=e)
+
     def test_flyer_management(self):
         """Test flyer management endpoints"""
         try:
