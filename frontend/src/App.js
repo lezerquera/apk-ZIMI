@@ -1641,6 +1641,11 @@ const AppointmentsPage = ({ setCurrentPage }) => {
             {/* Appointment Details */}
             <div className="border-b pb-6">
               <h3 className="text-lg font-semibold mb-4 text-gray-800">Detalles de la Cita</h3>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tipo de Consulta *
+                </label>
                 <div className="grid grid-cols-2 gap-4">
                   <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
