@@ -61,6 +61,12 @@ class MessageCreate(BaseModel):
 class MessageReply(BaseModel):
     message: str
 
+class AppointmentConfirmation(BaseModel):
+    assigned_date: str
+    assigned_time: str
+    telemedicine_link: Optional[str] = None
+    doctor_notes: Optional[str] = None
+
 # Flyer Management Models
 class ServiceFlyer(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
