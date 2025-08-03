@@ -2280,8 +2280,10 @@ const DoctorImageManager = ({ setCurrentPage }) => {
           
           console.log('Upload response:', response.data);
           
+          // Refresh the current image from server to confirm update
+          await fetchCurrentImage();
+          
           setUploadSuccess(true);
-          setCurrentImage(imagePreview);
           setNewImage(null);
           setImagePreview(null);
           
