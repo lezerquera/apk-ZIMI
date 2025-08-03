@@ -647,7 +647,7 @@ const MessagingPage = ({ setCurrentPage, user }) => {
                         }
                       }}
                       className={`p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
-                        !message.is_read && message.receiver_id === user.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                        !message.is_read && message.receiver_id === (user.role === 'admin' ? 'admin' : user.id) ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
                       } ${selectedMessage?.id === message.id ? 'bg-blue-100' : ''}`}
                     >
                       <div className="flex justify-between items-start mb-2">
