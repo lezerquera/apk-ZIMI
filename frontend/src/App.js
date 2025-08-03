@@ -1663,6 +1663,16 @@ const AppointmentsPage = ({ setCurrentPage }) => {
             </a>
           </div>
         </div>
+        
+        {/* Navigation button for elderly users */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => setCurrentPage('inicio')}
+            className="back-button elderly-friendly-button flex items-center gap-2 mx-auto"
+          >
+            ← Volver al Inicio
+          </button>
+        </div>
       </div>
     </div>
   );
