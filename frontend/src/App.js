@@ -1632,9 +1632,9 @@ const AppointmentsPage = ({ setCurrentPage }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg"
+              className="w-full elderly-friendly-button bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px]"
             >
-              {loading ? 'Enviando...' : 'Solicitar Cita'}
+              {loading ? '⏳ Enviando...' : '📅 Solicitar Cita'}
             </button>
           </form>
         </div>
