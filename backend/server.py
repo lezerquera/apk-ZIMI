@@ -792,7 +792,7 @@ async def get_appointments():
     return [Appointment(**appointment) for appointment in appointments]
 
 @api_router.put("/appointments/{appointment_id}/confirm")
-async def confirm_appointment(appointment_id: str, telemedicine_link: Optional[str] = None):
+async def confirm_appointment(appointment_id: str, confirmation_data: AppointmentConfirmation):
     # First, get the appointment details
     appointment = await db.appointments.find_one({"id": appointment_id})
     if not appointment:
@@ -800,11 +800,16 @@ async def confirm_appointment(appointment_id: str, telemedicine_link: Optional[s
     
     update_data = {
         "status": AppointmentStatus.CONFIRMADA,
-        "confirmed_at": datetime.utcnow()
+        "confirmed_at": datetime.utcnow(),
+        "assigned_date": confirmation_data.assigned_date,
+        "assigned_time": confirmation_data.assigned_time
     }
     
-    if telemedicine_link:
-        update_data["telemedicine_link"] = telemedicine_link
+    if confirmation_data.telemedicine_link:
+        update_data["telemedicine_link"] = confirmation_data.telemedicine_link
+    
+    if confirmation_data.doctor_notes:
+        update_data["doctor_notes"] = confirmation_data.doctor_notes
     
     result = await db.appointments.update_one(
         {"id": appointment_id},
@@ -830,8 +835,12 @@ async def confirm_appointment(appointment_id: str, telemedicine_link: Optional[s
 👤 **Paciente:** {appointment["patient_name"]}
 🩺 **Servicio:** {appointment["service_type"].replace('_', ' ').title()}
 📍 **Modalidad:** {'💻 Telemedicina' if appointment["appointment_type"] == 'telemedicina' else '🏥 Consulta Presencial'}
+📅 **Fecha Asignada:** {confirmation_data.assigned_date}
+🕐 **Hora Asignada:** {confirmation_data.assigned_time}
 
-{f'🔗 **Link de Telemedicina:** {telemedicine_link}' if telemedicine_link else ''}
+{f'🔗 **Link de Telemedicina:** {confirmation_data.telemedicine_link}' if confirmation_data.telemedicine_link else ''}
+
+{f'📝 **Notas del Doctor:** {confirmation_data.doctor_notes}' if confirmation_data.doctor_notes else ''}
 
 📞 **Información de Contacto:**
 - Teléfono: +1 305 274 4351
@@ -839,7 +848,7 @@ async def confirm_appointment(appointment_id: str, telemedicine_link: Optional[s
 
 ⚠️ **IMPORTANTE:**
 - Llegue 10 minutos antes de su cita
-{f'- Para telemedicina, haga clic en el link 5 minutos antes' if telemedicine_link else '- Traiga documento de identidad'}
+{f'- Para telemedicina, haga clic en el link 5 minutos antes' if confirmation_data.telemedicine_link else '- Traiga documento de identidad'}
 - Si necesita cancelar, contáctenos con 24 horas de anticipación
 
 ¡Esperamos verle pronto!
@@ -865,7 +874,10 @@ Instituto de Medicina Integrativa""",
             "patient_name": appointment["patient_name"],
             "service_type": appointment["service_type"],
             "appointment_type": appointment["appointment_type"],
-            "telemedicine_link": telemedicine_link if telemedicine_link else None
+            "assigned_date": confirmation_data.assigned_date,
+            "assigned_time": confirmation_data.assigned_time,
+            "telemedicine_link": confirmation_data.telemedicine_link if confirmation_data.telemedicine_link else None,
+            "doctor_notes": confirmation_data.doctor_notes if confirmation_data.doctor_notes else None
         }
     }
 
