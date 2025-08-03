@@ -2646,6 +2646,16 @@ const ContactPage = ({ setCurrentPage }) => {
             )}
           </div>
         </div>
+        
+        {/* Navigation button for elderly users */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => setCurrentPage('inicio')}
+            className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all flex items-center gap-2 mx-auto"
+          >
+            ← Volver al Inicio
+          </button>
+        </div>
       </div>
     </div>
   );
