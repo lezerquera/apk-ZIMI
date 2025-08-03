@@ -4120,13 +4120,20 @@ function App() {
     if (user?.role === 'admin') {
       const loadAdminData = async () => {
         try {
-          // Load messages
+          // Use the specific admin polling endpoint
+          const pollResponse = await axios.get(`${API}/admin/messages/poll`);
+          
+          // Also load all messages for admin
           const messagesResponse = await axios.get(`${API}/messages/admin`);
           setMessages(messagesResponse.data);
           
           // Load appointments
           const appointmentsResponse = await axios.get(`${API}/appointments`);
           setAppointments(appointmentsResponse.data);
+          
+          // Log unread count for debugging
+          console.log(`Admin notification poll - Unread messages: ${pollResponse.data.unread_count}`);
+          
         } catch (error) {
           console.error('Error loading admin data for notifications:', error);
         }
@@ -4134,8 +4141,8 @@ function App() {
       
       loadAdminData();
       
-      // Poll for new data every 30 seconds
-      const interval = setInterval(loadAdminData, 30000);
+      // Poll more frequently for admin notifications (every 15 seconds)
+      const interval = setInterval(loadAdminData, 15000);
       return () => clearInterval(interval);
     }
   }, [user]);
