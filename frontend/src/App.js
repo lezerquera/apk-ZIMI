@@ -640,36 +640,71 @@ const MessagingPage = ({ setCurrentPage, user }) => {
                   messages.map((message) => (
                     <div
                       key={message.id}
-                      onClick={() => {
-                        setSelectedMessage(message);
-                        if (!message.is_read && message.receiver_id === (user.role === 'admin' ? 'admin' : user.id)) {
-                          markAsRead(message.id);
-                        }
-                      }}
-                      className={`p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
+                      className={`p-4 border-b hover:bg-gray-50 transition-colors ${
                         !message.is_read && message.receiver_id === (user.role === 'admin' ? 'admin' : user.id) ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
                       } ${selectedMessage?.id === message.id ? 'bg-blue-100' : ''}`}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="font-medium text-gray-800">
-                          {message.sender_id === (user.role === 'admin' ? 'admin' : user.id) ? `Para: ${message.receiver_name}` : `De: ${message.sender_name}`}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full text-xs ${getMessageTypeColor(message.message_type)}`}>
-                          {getMessageTypeIcon(message.message_type)}
-                        </span>
+                      {/* Mobile-optimized message card */}
+                      <div className="space-y-3">
+                        {/* Header with sender info */}
+                        <div className="flex justify-between items-start">
+                          <span className="font-semibold text-gray-800 text-base">
+                            {message.sender_id === (user.role === 'admin' ? 'admin' : user.id) ? `Para: ${message.receiver_name}` : `De: ${message.sender_name}`}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs flex-shrink-0 ml-2 ${getMessageTypeColor(message.message_type)}`}>
+                            {getMessageTypeIcon(message.message_type)}
+                          </span>
+                        </div>
+                        
+                        {/* Subject - larger font for readability */}
+                        <p className="font-medium text-gray-900 text-lg leading-tight">
+                          {message.subject}
+                        </p>
+                        
+                        {/* Message preview - larger font */}
+                        <p className="text-gray-700 text-base leading-relaxed">
+                          {message.message.length > 100 
+                            ? `${message.message.substring(0, 100)}...` 
+                            : message.message
+                          }
+                        </p>
+                        
+                        {/* Date */}
+                        <p className="text-sm text-gray-500">
+                          {new Date(message.created_at).toLocaleDateString()} {new Date(message.created_at).toLocaleTimeString()}
+                        </p>
+                        
+                        {/* Action buttons - easier to tap */}
+                        <div className="flex gap-2 pt-2">
+                          <button
+                            onClick={() => {
+                              setSelectedMessage(message);
+                              if (!message.is_read && message.receiver_id === (user.role === 'admin' ? 'admin' : user.id)) {
+                                markAsRead(message.id);
+                              }
+                            }}
+                            className="elderly-friendly-button bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 text-sm flex-shrink-0"
+                          >
+                            👁️ Ver Completo
+                          </button>
+                          
+                          {message.sender_id !== (user.role === 'admin' ? 'admin' : user.id) && (
+                            <button
+                              onClick={() => {
+                                setSelectedMessage(message);
+                                // Auto-scroll to reply section would happen here
+                                setTimeout(() => {
+                                  const replyButton = document.querySelector('[data-reply-button]');
+                                  if (replyButton) replyButton.click();
+                                }, 100);
+                              }}
+                              className="elderly-friendly-button bg-green-600 text-white hover:bg-green-700 px-4 py-2 text-sm flex-shrink-0"
+                            >
+                              📤 Responder
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-sm font-medium text-gray-900 mb-1">
-                        {message.subject}
-                      </p>
-                      <p className="text-xs text-gray-600 mb-2">
-                        {message.message.length > 60 
-                          ? `${message.message.substring(0, 60)}...` 
-                          : message.message
-                        }
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(message.created_at).toLocaleDateString()} {new Date(message.created_at).toLocaleTimeString()}
-                      </p>
                     </div>
                   ))
                 )}
