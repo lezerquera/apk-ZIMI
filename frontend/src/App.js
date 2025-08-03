@@ -3635,6 +3635,9 @@ function App() {
 
   return (
     <div className="App min-h-screen bg-gray-50">
+      {/* Component to handle Emergent branding interference */}
+      <EmergentBrandingFix />
+      
       {showHeader && (
         <Header 
           currentPage={currentPage} 
@@ -3644,7 +3647,7 @@ function App() {
         />
       )}
       
-      <main className={showMobileNav ? "pb-20 md:pb-0" : ""}>
+      <main className={showMobileNav ? "pb-32 md:pb-0" : ""}>
         {renderPage()}
       </main>
       {showMobileNav && (
