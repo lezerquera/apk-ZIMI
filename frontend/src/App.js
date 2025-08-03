@@ -2734,7 +2734,7 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
           <div className="absolute top-4 right-4 flex flex-col gap-2">
             <button
               onClick={onClose}
-              className="bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-lg transition-all font-bold text-lg min-w-[50px] min-h-[50px] flex items-center justify-center"
+              className="modal-close-button"
               title="Cerrar"
             >
               ✕
