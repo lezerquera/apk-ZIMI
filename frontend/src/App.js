@@ -1588,7 +1588,6 @@ const AppointmentsPage = ({ setCurrentPage }) => {
                   placeholder="su-email@ejemplo.com"
                 />
               </div>
-              </div>
             </div>
 
             {/* Medical Information */}
