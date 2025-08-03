@@ -536,11 +536,34 @@ async def get_current_doctor_image():
 
 # Add route to update doctor image (Admin only)
 @api_router.post("/admin/doctor-image")
-async def update_doctor_image(image_data: str):
+async def update_doctor_image(request: DoctorImageUpdate):
     """Update doctor image with base64 data"""
-    # In a real application, you'd store this in the database
-    # For now, we'll just return success
-    return {"message": "Imagen del doctor actualizada exitosamente", "image_data": image_data[:100] + "..."}
+    try:
+        # Validate that we received image data
+        if not request.image_data:
+            raise HTTPException(status_code=400, detail="No image data provided")
+        
+        # Validate base64 format (basic check)
+        if not request.image_data.startswith('data:image/'):
+            raise HTTPException(status_code=400, detail="Invalid image format")
+        
+        # In a real application, you'd:
+        # 1. Validate the image size and format
+        # 2. Store the image in a database or file storage
+        # 3. Update the doctor info with the new image URL
+        
+        # For now, we'll just return success
+        print(f"Received image data of length: {len(request.image_data)}")
+        
+        return {
+            "message": "Imagen del doctor actualizada exitosamente",
+            "status": "success",
+            "image_length": len(request.image_data)
+        }
+        
+    except Exception as e:
+        print(f"Error updating doctor image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error updating image: {str(e)}")
 
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
