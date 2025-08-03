@@ -1454,8 +1454,7 @@ const AppointmentsPage = ({ setCurrentPage }) => {
         patient_phone: '',
         service_type: '',
         appointment_type: 'presencial',
-        fecha_solicitada: '',
-        hora_solicitada: '',
+        urgency_level: '',
         mensaje: ''
       });
     } catch (error) {
