@@ -420,7 +420,9 @@ const MessagingPage = ({ setCurrentPage, user }) => {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(`${API}/messages/${user.id}`);
+      // Use consistent ID for admin and user ID for patients
+      const userId = user.role === 'admin' ? 'admin' : user.id;
+      const response = await axios.get(`${API}/messages/${userId}`);
       setMessages(response.data);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -429,7 +431,9 @@ const MessagingPage = ({ setCurrentPage, user }) => {
 
   const fetchUnreadCount = async () => {
     try {
-      const response = await axios.get(`${API}/messages/unread/${user.id}`);
+      // Use consistent ID for admin and user ID for patients
+      const userId = user.role === 'admin' ? 'admin' : user.id;
+      const response = await axios.get(`${API}/messages/unread/${userId}`);
       setUnreadCount(response.data.unread_count);
     } catch (error) {
       console.error('Error fetching unread count:', error);
