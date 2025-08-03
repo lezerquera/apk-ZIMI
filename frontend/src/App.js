@@ -2274,9 +2274,11 @@ const DoctorImageManager = ({ setCurrentPage }) => {
         const base64Data = reader.result;
         
         try {
-          await axios.post(`${API}/admin/doctor-image`, {
+          const response = await axios.post(`${API}/admin/doctor-image`, {
             image_data: base64Data
           });
+          
+          console.log('Upload response:', response.data);
           
           setUploadSuccess(true);
           setCurrentImage(imagePreview);
@@ -2287,10 +2289,21 @@ const DoctorImageManager = ({ setCurrentPage }) => {
           const fileInput = document.getElementById('doctor-image-input');
           if (fileInput) fileInput.value = '';
           
-          setTimeout(() => setUploadSuccess(false), 3000);
+          setTimeout(() => setUploadSuccess(false), 5000);
         } catch (error) {
           console.error('Error uploading image:', error);
-          alert('Error al subir la imagen. Por favor intente nuevamente.');
+          
+          // Show detailed error message
+          let errorMessage = 'Error al subir la imagen. ';
+          if (error.response?.data?.detail) {
+            errorMessage += error.response.data.detail;
+          } else if (error.message) {
+            errorMessage += error.message;
+          } else {
+            errorMessage += 'Por favor intente nuevamente.';
+          }
+          
+          alert(errorMessage);
         }
       };
       reader.readAsDataURL(newImage);
