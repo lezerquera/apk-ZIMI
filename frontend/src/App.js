@@ -2867,11 +2867,11 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
                 // This would trigger navigation to appointments
                 window.location.hash = 'citas';
               }}
-              className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 font-semibold text-lg transition-all block w-full md:w-auto md:inline-block"
+              className="elderly-friendly-button bg-blue-600 text-white hover:bg-blue-700 block w-full md:w-auto md:inline-block"
             >
               📅 Agendar Consulta de {service?.nombre}
             </button>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 large-text">
               Consulta personalizada con el Dr. Pablo Zerquera
             </p>
             
@@ -2879,7 +2879,7 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
             <div className="pt-4 border-t border-gray-200">
               <button
                 onClick={onClose}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all w-full md:w-auto flex items-center justify-center gap-2"
+                className="back-button elderly-friendly-button w-full md:w-auto flex items-center justify-center gap-2"
               >
                 ← Volver a Servicios
               </button>
