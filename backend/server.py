@@ -783,6 +783,11 @@ async def get_appointments():
 
 @api_router.put("/appointments/{appointment_id}/confirm")
 async def confirm_appointment(appointment_id: str, telemedicine_link: Optional[str] = None):
+    # First, get the appointment details
+    appointment = await db.appointments.find_one({"id": appointment_id})
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Cita no encontrada")
+    
     update_data = {
         "status": AppointmentStatus.CONFIRMADA,
         "confirmed_at": datetime.utcnow()
@@ -799,7 +804,60 @@ async def confirm_appointment(appointment_id: str, telemedicine_link: Optional[s
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Cita no encontrada")
     
-    return {"message": "Cita confirmada exitosamente"}
+    # Send confirmation message to patient
+    try:
+        confirmation_message = {
+            "id": str(uuid.uuid4()),
+            "sender_id": "admin",
+            "sender_name": "Dr. Zerquera",
+            "receiver_id": appointment["patient_id"],
+            "receiver_name": appointment["patient_name"],
+            "subject": "✅ Cita Confirmada - Dr. Zerquera",
+            "message": f"""¡Excelente noticia! Su cita ha sido confirmada.
+
+📅 **DETALLES DE SU CITA CONFIRMADA:**
+
+👤 **Paciente:** {appointment["patient_name"]}
+🩺 **Servicio:** {appointment["service_type"].replace('_', ' ').title()}
+📍 **Modalidad:** {'💻 Telemedicina' if appointment["appointment_type"] == 'telemedicina' else '🏥 Consulta Presencial'}
+
+{f'🔗 **Link de Telemedicina:** {telemedicine_link}' if telemedicine_link else ''}
+
+📞 **Información de Contacto:**
+- Teléfono: +1 305 274 4351
+- Email: info@drzerquera.com
+
+⚠️ **IMPORTANTE:**
+- Llegue 10 minutos antes de su cita
+{f'- Para telemedicina, haga clic en el link 5 minutos antes' if telemedicine_link else '- Traiga documento de identidad'}
+- Si necesita cancelar, contáctenos con 24 horas de anticipación
+
+¡Esperamos verle pronto!
+
+Dr. Pablo Zerquera, OMD, AP
+Instituto de Medicina Integrativa""",
+            "message_type": "appointment_confirmation",
+            "is_read": False,
+            "created_at": datetime.utcnow()
+        }
+        
+        await db.messages.insert_one(confirmation_message)
+        print(f"✅ Confirmation message sent to patient {appointment['patient_name']}")
+        
+    except Exception as e:
+        print(f"❌ Error sending confirmation message: {str(e)}")
+        # Don't fail the confirmation if message sending fails
+    
+    return {
+        "message": "Cita confirmada exitosamente", 
+        "patient_notified": True,
+        "appointment_details": {
+            "patient_name": appointment["patient_name"],
+            "service_type": appointment["service_type"],
+            "appointment_type": appointment["appointment_type"],
+            "telemedicine_link": telemedicine_link if telemedicine_link else None
+        }
+    }
 
 @api_router.post("/contact", response_model=Contact)
 async def create_contact(contact_data: ContactCreate):
