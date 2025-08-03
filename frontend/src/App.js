@@ -3134,62 +3134,26 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Changed from uiReady to isLoading
 
-  // Clean up any existing notifications on app start
+  // Initialize app and restore user session
   useEffect(() => {
-    // Force clear all notifications and cache
-    const forceCleanNotifications = () => {
-      try {
-        // Close all browser notifications
-        if ('Notification' in window) {
-          // Clear permission if needed
-          console.log('Cleaning up notifications...');
+    const initializeApp = () => {
+      const savedUser = localStorage.getItem('zimi_user');
+      if (savedUser) {
+        try {
+          const userData = JSON.parse(savedUser);
+          setUser(userData);
+          setIsAuthenticated(true);
+          setCurrentPage('inicio');
+        } catch (error) {
+          console.error('Error parsing saved user data:', error);
+          localStorage.removeItem('zimi_user');
         }
-        
-        // Clear any service worker notifications
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.ready.then(registration => {
-            registration.getNotifications().then(notifications => {
-              notifications.forEach(notification => {
-                console.log('Closing notification:', notification.tag);
-                notification.close();
-              });
-            }).catch(e => console.log('No notifications to clean'));
-          }).catch(e => console.log('No service worker'));
-        }
-        
-        // Remove any DOM elements that might be notification panels
-        const notificationPanels = document.querySelectorAll('[class*="notification"], [class*="Notification"], [id*="notification"], .fixed');
-        notificationPanels.forEach(panel => {
-          if (panel.textContent && (
-            panel.textContent.includes('Notificaciones') || 
-            panel.textContent.includes('Nueva Solicitud') ||
-            panel.textContent.includes('notification') ||
-            panel.classList.contains('z-40') ||
-            panel.classList.contains('z-50')
-          )) {
-            console.log('Removing notification panel:', panel);
-            panel.remove();
-          }
-        });
-        
-      } catch (error) {
-        console.log('Notification cleanup completed');
       }
+      // Always set loading to false after initialization
+      setIsLoading(false);
     };
 
-    // Run cleanup immediately
-    forceCleanNotifications();
-    
-    // Run cleanup again after a short delay
-    const cleanupTimer = setTimeout(forceCleanNotifications, 1000);
-    
-    // Mark UI as ready after cleanup
-    const uiTimer = setTimeout(() => setUiReady(true), 500);
-    
-    return () => {
-      clearTimeout(cleanupTimer);
-      clearTimeout(uiTimer);
-    };
+    initializeApp();
   }, []);
 
   // Check if user is already logged in (from localStorage)
