@@ -691,7 +691,7 @@ async def get_doctor_info():
         ],
         "experiencia": "Dr. Zerquera lidera nuestro equipo con amplia experiencia en medicina integrativa, asegurando que todos los miembros colaboren eficazmente para apoyar sus objetivos de salud. Tiene experiencia integral en el manejo del dolor, utilizando diversas técnicas de la Medicina Oriental.",
         "filosofia": "En ZIMI estamos comprometidos a brindar atención excepcional a nuestros pacientes. Ofrecemos una amplia gama de terapias que satisfacen todas sus necesidades. Al combinar ejercicios de fisioterapia con técnicas tradicionales de acupuntura, encontraremos una solución que funcione mejor para usted.",
-        "imagen": "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+        "imagen": DOCTOR_IMAGE_DATA  # Use stored image data
     }
 
 @api_router.get("/team")
