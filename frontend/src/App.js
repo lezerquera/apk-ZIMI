@@ -3868,6 +3868,31 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Load messages and appointments for admin notifications
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      const loadAdminData = async () => {
+        try {
+          // Load messages
+          const messagesResponse = await axios.get(`${API}/messages/admin`);
+          setMessages(messagesResponse.data);
+          
+          // Load appointments
+          const appointmentsResponse = await axios.get(`${API}/appointments`);
+          setAppointments(appointmentsResponse.data);
+        } catch (error) {
+          console.error('Error loading admin data for notifications:', error);
+        }
+      };
+      
+      loadAdminData();
+      
+      // Poll for new data every 30 seconds
+      const interval = setInterval(loadAdminData, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
   // Save user to localStorage when authenticated
   useEffect(() => {
     if (user && isAuthenticated) {
