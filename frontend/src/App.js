@@ -3496,6 +3496,14 @@ function App() {
           setCurrentPage('inicio');
           return <HomePage setCurrentPage={setCurrentPage} user={user} />;
         }
+      case 'doctor-image-manager':
+        // Admin only page for doctor image management
+        if (user?.role === 'admin') {
+          return <DoctorImageManager setCurrentPage={setCurrentPage} user={user} />;
+        } else {
+          setCurrentPage('inicio');
+          return <HomePage setCurrentPage={setCurrentPage} user={user} />;
+        }
       case 'profile':
         return <PatientProfilePage setCurrentPage={setCurrentPage} user={user} />;
       default:
