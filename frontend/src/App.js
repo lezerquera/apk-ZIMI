@@ -3221,6 +3221,22 @@ function App() {
     }
   };
 
+  // Show loading screen during initialization
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <img 
+            src="https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png" 
+            alt="ZIMI Logo" 
+            className="h-20 w-auto mx-auto mb-4 animate-pulse"
+          />
+          <p className="text-gray-600">Cargando ZIMI...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Don't render header for login/register pages
   const showHeader = isAuthenticated && !['login', 'register'].includes(currentPage);
   const showMobileNav = isAuthenticated && !['login', 'register', 'flyer-management'].includes(currentPage);
