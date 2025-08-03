@@ -471,7 +471,7 @@ const MessagingPage = ({ setCurrentPage, user }) => {
 
       await axios.post(`${API}/messages`, messageToSend, {
         params: {
-          sender_id: user.id || user.role, // Use role as ID for admin
+          sender_id: user.role === 'admin' ? 'admin' : user.id,
           sender_name: user.role === 'admin' ? 'Dr. Zerquera' : user.name
         }
       });
