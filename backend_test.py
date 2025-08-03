@@ -162,6 +162,91 @@ class BackendTester:
         except Exception as e:
             self.log_test("Get Appointments", False, error=e)
 
+    def test_appointment_confirmation(self):
+        """Test PUT /api/appointments/{appointment_id}/confirm endpoint with date assignment"""
+        if not self.appointment_id:
+            self.log_test("Appointment Confirmation", False, "No appointment ID available for testing")
+            return
+            
+        try:
+            # Test appointment confirmation with all fields
+            confirmation_data = {
+                "assigned_date": "2025-01-25",
+                "assigned_time": "14:30",
+                "telemedicine_link": "https://meet.google.com/abc-defg-hij",
+                "doctor_notes": "Por favor traiga sus estudios médicos previos. Llegue 10 minutos antes."
+            }
+            
+            response = requests.put(f"{API_BASE}/appointments/{self.appointment_id}/confirm", 
+                                  json=confirmation_data, 
+                                  timeout=10)
+            
+            if response.status_code == 200:
+                result = response.json()
+                if (result.get("message") and 
+                    result.get("patient_notified") and 
+                    result.get("appointment_details")):
+                    
+                    details = result.get("appointment_details")
+                    if (details.get("assigned_date") == confirmation_data["assigned_date"] and
+                        details.get("assigned_time") == confirmation_data["assigned_time"] and
+                        details.get("telemedicine_link") == confirmation_data["telemedicine_link"] and
+                        details.get("doctor_notes") == confirmation_data["doctor_notes"]):
+                        
+                        self.log_test("Appointment Confirmation", True, 
+                                    f"Appointment confirmed with date: {details['assigned_date']}, time: {details['assigned_time']}")
+                    else:
+                        self.log_test("Appointment Confirmation", False, "Confirmation data mismatch")
+                else:
+                    self.log_test("Appointment Confirmation", False, "Missing confirmation response data")
+            else:
+                self.log_test("Appointment Confirmation", False, f"Status: {response.status_code}, Response: {response.text}")
+        except Exception as e:
+            self.log_test("Appointment Confirmation", False, error=e)
+
+    def test_appointment_model_updates(self):
+        """Test that confirmed appointments include new fields"""
+        if not self.appointment_id:
+            self.log_test("Appointment Model Updates", False, "No appointment ID available for testing")
+            return
+            
+        try:
+            # Get the confirmed appointment to verify new fields
+            response = requests.get(f"{API_BASE}/appointments", timeout=10)
+            if response.status_code == 200:
+                appointments = response.json()
+                confirmed_appointment = None
+                
+                for appointment in appointments:
+                    if appointment.get("id") == self.appointment_id:
+                        confirmed_appointment = appointment
+                        break
+                
+                if confirmed_appointment:
+                    # Check for new fields
+                    has_assigned_date = confirmed_appointment.get("assigned_date") is not None
+                    has_assigned_time = confirmed_appointment.get("assigned_time") is not None
+                    has_doctor_notes = confirmed_appointment.get("doctor_notes") is not None
+                    has_status_confirmed = confirmed_appointment.get("status") == "confirmada"
+                    
+                    if has_assigned_date and has_assigned_time and has_doctor_notes and has_status_confirmed:
+                        self.log_test("Appointment Model Updates", True, 
+                                    f"Appointment model includes new fields: assigned_date={confirmed_appointment['assigned_date']}, assigned_time={confirmed_appointment['assigned_time']}")
+                    else:
+                        missing_fields = []
+                        if not has_assigned_date: missing_fields.append("assigned_date")
+                        if not has_assigned_time: missing_fields.append("assigned_time")
+                        if not has_doctor_notes: missing_fields.append("doctor_notes")
+                        if not has_status_confirmed: missing_fields.append("status=confirmada")
+                        
+                        self.log_test("Appointment Model Updates", False, f"Missing fields: {missing_fields}")
+                else:
+                    self.log_test("Appointment Model Updates", False, "Could not find confirmed appointment")
+            else:
+                self.log_test("Appointment Model Updates", False, f"Status: {response.status_code}")
+        except Exception as e:
+            self.log_test("Appointment Model Updates", False, error=e)
+
     def test_patient_registration(self):
         """Test POST /api/auth/register endpoint"""
         try:
