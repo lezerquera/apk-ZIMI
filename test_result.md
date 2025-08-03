@@ -302,10 +302,15 @@ metadata:
   run_ui: true
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Appointment Confirmation with Date Assignment"
+    - "Admin Appointment Confirmation with Date Selection"
+    - "Patient Appointment Status Visibility"
+    - "Admin Message Notification System Fix"
+    - "Message Notifications for Admin"
   stuck_tasks: []
   test_all: false
-  test_priority: "completed"
+  test_priority: "high_first"
 
 agent_communication:
     -agent: "main"
