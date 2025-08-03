@@ -458,9 +458,16 @@ const MessagingPage = ({ setCurrentPage, user }) => {
   const sendMessage = async () => {
     setLoading(true);
     try {
-      await axios.post(`${API}/messages`, newMessage, {
+      // For patients sending to admin, set receiver_id to 'admin'
+      const messageToSend = { ...newMessage };
+      if (user?.role === 'patient') {
+        messageToSend.receiver_id = 'admin';
+        messageToSend.receiver_name = 'Dr. Zerquera';
+      }
+
+      await axios.post(`${API}/messages`, messageToSend, {
         params: {
-          sender_id: user.id,
+          sender_id: user.id || user.role, // Use role as ID for admin
           sender_name: user.role === 'admin' ? 'Dr. Zerquera' : user.name
         }
       });
@@ -474,10 +481,37 @@ const MessagingPage = ({ setCurrentPage, user }) => {
       });
       setShowCompose(false);
       fetchMessages();
-      alert('Mensaje enviado exitosamente');
+      
+      // Show success notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      notification.textContent = '✅ Mensaje enviado exitosamente';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 3000);
+      
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Error enviando el mensaje');
+      
+      // Show error notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      notification.textContent = '❌ Error enviando el mensaje';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 3000);
+    } finally {
+      setLoading(false);
+    }
+  };
     } finally {
       setLoading(false);
     }
