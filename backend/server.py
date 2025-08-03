@@ -661,6 +661,7 @@ async def get_services():
 
 @api_router.get("/doctor-info")
 async def get_doctor_info():
+    global DOCTOR_IMAGE_DATA
     return {
         "nombre": "Dr. Pablo Zerquera",
         "titulo": "OMD, AP, PhD",
