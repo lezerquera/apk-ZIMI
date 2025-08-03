@@ -2680,19 +2680,25 @@ const ServiceFlyerModal = ({ service, isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
+        {/* Header with clear close button */}
         <div className="relative">
           <img 
             src={flyerData.image_url}
             alt={flyerData.title}
             className="w-full h-64 object-cover rounded-t-xl"
           />
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all"
-          >
-            <span className="text-gray-600 text-xl">✕</span>
-          </button>
+          
+          {/* Large, clear close button for elderly users */}
+          <div className="absolute top-4 right-4 flex flex-col gap-2">
+            <button
+              onClick={onClose}
+              className="bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-lg transition-all font-bold text-lg min-w-[50px] min-h-[50px] flex items-center justify-center"
+              title="Cerrar"
+            >
+              ✕
+            </button>
+          </div>
+          
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
             <h2 className="text-3xl font-bold text-white">{flyerData.title}</h2>
           </div>
