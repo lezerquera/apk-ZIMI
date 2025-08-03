@@ -357,6 +357,37 @@ async def get_unread_count(user_id: str):
     })
     return {"unread_count": count}
 
+@api_router.get("/admin/messages/poll")
+async def poll_admin_messages():
+    """Polling endpoint specifically for admin to check for new messages"""
+    try:
+        # Get unread message count for admin
+        unread_count = await db.messages.count_documents({
+            "receiver_id": "admin",
+            "is_read": False
+        })
+        
+        # Get latest unread messages for admin (limited to 5 most recent)
+        latest_messages = await db.messages.find({
+            "receiver_id": "admin",
+            "is_read": False
+        }).sort("created_at", -1).limit(5).to_list(5)
+        
+        return {
+            "unread_count": unread_count,
+            "latest_messages": [
+                {
+                    "id": msg["id"],
+                    "sender_name": msg["sender_name"],
+                    "subject": msg["subject"],
+                    "created_at": msg["created_at"]
+                } for msg in latest_messages
+            ]
+        }
+    except Exception as e:
+        print(f"❌ Error polling admin messages: {str(e)}")
+        return {"unread_count": 0, "latest_messages": []}
+
 # Flyer management routes (Admin only)
 @api_router.get("/flyers")
 async def get_all_flyers():
