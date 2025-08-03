@@ -120,6 +120,30 @@ backend:
         -agent: "testing"
         -comment: "Comprehensive testing completed with 100% success rate. All 19 test cases passed including: API endpoints (GET /api/, /api/services, /api/doctor-info, /api/contact-info, POST /api/appointments), authentication endpoints (patient registration/login, admin login), message system endpoints, flyer management, CORS configuration, error handling, MongoDB connectivity, and environment variables. Backend is fully functional and ready for production."
 
+  - task: "Appointment Confirmation with Date Assignment"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Current appointment confirmation endpoint only accepts telemedicine_link but doctor needs to assign specific date and time when confirming appointments. Need to modify the confirm endpoint to accept date/time parameters and update the appointment model."
+
+  - task: "Message Notifications for Admin"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Need to implement backend endpoint to track unread message count for admin and provide real-time notification updates when patients send messages to admin."
+
 frontend:
   - task: "PWA Domain Configuration"
     implemented: true
