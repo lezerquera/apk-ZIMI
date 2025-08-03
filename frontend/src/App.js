@@ -652,7 +652,7 @@ const MessagingPage = ({ setCurrentPage, user }) => {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <span className="font-medium text-gray-800">
-                          {message.sender_id === user.id ? `Para: ${message.receiver_name}` : `De: ${message.sender_name}`}
+                          {message.sender_id === (user.role === 'admin' ? 'admin' : user.id) ? `Para: ${message.receiver_name}` : `De: ${message.sender_name}`}
                         </span>
                         <span className={`px-2 py-1 rounded-full text-xs ${getMessageTypeColor(message.message_type)}`}>
                           {getMessageTypeIcon(message.message_type)}
