@@ -2083,122 +2083,226 @@ const AdminPage = ({ setCurrentPage }) => {
           </div>
         </div>
 
-        {/* Appointments Table */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        {/* Appointments - Mobile-Friendly Cards */}
+        <div className="bg-white rounded-lg shadow-lg">
           <div className="px-6 py-4 border-b">
             <h2 className="text-2xl font-bold text-gray-800">
               Solicitudes de Citas ({appointments.length})
             </h2>
           </div>
           
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Paciente
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Contacto
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Servicio
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Tipo
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Fecha/Hora
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {appointments.map((appointment) => (
-                  <tr key={appointment.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {appointment.patient_name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          ID: {appointment.patient_id.slice(0, 8)}...
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm">
-                        <div className="text-gray-900">{appointment.patient_email}</div>
-                        <div className="text-gray-500">{appointment.patient_phone}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {appointment.service_type.replace(/_/g, ' ').toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        appointment.appointment_type === 'telemedicina' 
-                          ? 'bg-purple-100 text-purple-800' 
-                          : 'bg-green-100 text-green-800'
-                      }`}>
+          {/* Mobile-First Design */}
+          <div className="lg:hidden">
+            {/* Mobile Card Layout */}
+            <div className="divide-y divide-gray-200">
+              {appointments.map((appointment) => (
+                <div key={appointment.id} className="p-6 space-y-4">
+                  {/* Patient Info Header */}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {appointment.patient_name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        ID: {appointment.patient_id.slice(0, 8)}...
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(appointment.status)}`}>
+                      {appointment.status.toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  {/* Contact Info */}
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                    <div className="flex items-center text-base">
+                      <span className="font-medium w-20">📧 Email:</span>
+                      <span className="text-gray-700">{appointment.patient_email}</span>
+                    </div>
+                    <div className="flex items-center text-base">
+                      <span className="font-medium w-20">📞 Tel:</span>
+                      <span className="text-gray-700">{appointment.patient_phone}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Service & Type */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">Servicio:</span>
+                      <p className="text-base font-medium text-blue-800">
+                        {appointment.service_type.replace(/_/g, ' ')}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">Modalidad:</span>
+                      <p className="text-base font-medium">
                         {appointment.appointment_type === 'telemedicina' ? '💻 Telemedicina' : '🏥 Presencial'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      <div>{appointment.fecha_solicitada}</div>
-                      <div className="text-gray-500">{appointment.hora_solicitada}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(appointment.status)}`}>
-                        {appointment.status.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm space-y-2">
-                      {appointment.status === 'solicitada' && (
-                        <div className="space-y-2">
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Urgency Level */}
+                  {appointment.urgency_level && (
+                    <div className="bg-yellow-50 p-3 rounded-lg">
+                      <span className="text-sm font-medium text-gray-600">Urgencia:</span>
+                      <p className="text-base font-semibold text-yellow-800">
+                        {appointment.urgency_level === 'normal' && '🟢 Normal (2-3 semanas)'}
+                        {appointment.urgency_level === 'moderada' && '🟡 Moderada (1 semana)'}
+                        {appointment.urgency_level === 'urgente' && '🟠 Urgente (2-3 días)'}
+                        {appointment.urgency_level === 'emergencia' && '🔴 Emergencia (24 horas)'}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Message */}
+                  {appointment.mensaje && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <span className="text-sm font-medium text-gray-600">Motivo de consulta:</span>
+                      <p className="text-base text-gray-800 leading-relaxed mt-1">
+                        {appointment.mensaje}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Actions - Large buttons for elderly doctors */}
+                  <div className="flex flex-col gap-3 pt-4">
+                    {appointment.status === 'solicitada' && (
+                      <div className="grid grid-cols-1 gap-2">
+                        <button
+                          onClick={() => confirmAppointment(appointment.id)}
+                          className="elderly-friendly-button bg-green-600 text-white hover:bg-green-700 text-lg py-4"
+                        >
+                          ✅ Confirmar Cita
+                        </button>
+                        {appointment.appointment_type === 'telemedicina' && (
                           <button
-                            onClick={() => confirmAppointment(appointment.id)}
-                            className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 block"
+                            onClick={() => {
+                              const link = prompt('Ingrese el link de telemedicina (ej: https://meet.google.com/abc-def-ghi):');
+                              if (link) confirmAppointment(appointment.id, link);
+                            }}
+                            className="elderly-friendly-button bg-purple-600 text-white hover:bg-purple-700 text-lg py-4"
                           >
-                            ✅ Confirmar
+                            💻 Confirmar + Agregar Link
                           </button>
-                          {appointment.appointment_type === 'telemedicina' && (
-                            <button
-                              onClick={() => {
-                                const link = prompt('Ingrese el link de telemedicina (ej: https://meet.google.com/abc-def-ghi):');
-                                if (link) confirmAppointment(appointment.id, link);
-                              }}
-                              className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 block"
-                            >
-                              💻 + Link
-                            </button>
-                          )}
-                        </div>
-                      )}
+                        )}
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-2">
                       <a
                         href={`tel:${appointment.patient_phone}`}
-                        className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 block text-center"
+                        className="elderly-friendly-button bg-blue-600 text-white hover:bg-blue-700 text-center text-lg py-4"
                       >
                         📞 Llamar
                       </a>
                       <a
                         href={`mailto:${appointment.patient_email}`}
-                        className="bg-gray-600 text-white px-3 py-1 rounded text-xs hover:bg-gray-700 block text-center"
+                        className="elderly-friendly-button bg-gray-600 text-white hover:bg-gray-700 text-center text-lg py-4"
                       >
                         📧 Email
                       </a>
-                    </td>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop Table - Hidden on Mobile */}
+          <div className="hidden lg:block">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Paciente</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contacto</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Servicio</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Modalidad</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Urgencia</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {appointments.map((appointment) => (
+                    <tr key={appointment.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-gray-900">{appointment.patient_name}</div>
+                        <div className="text-sm text-gray-500">ID: {appointment.patient_id.slice(0, 8)}...</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm">
+                          <div className="text-gray-900">{appointment.patient_email}</div>
+                          <div className="text-gray-500">{appointment.patient_phone}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {appointment.service_type.replace(/_/g, ' ').toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          appointment.appointment_type === 'telemedicina' 
+                            ? 'bg-purple-100 text-purple-800' 
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {appointment.appointment_type === 'telemedicina' ? '💻 Telemedicina' : '🏥 Presencial'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {appointment.urgency_level && (
+                          <span className="text-sm">
+                            {appointment.urgency_level === 'normal' && '🟢 Normal'}
+                            {appointment.urgency_level === 'moderada' && '🟡 Moderada'}
+                            {appointment.urgency_level === 'urgente' && '🟠 Urgente'}
+                            {appointment.urgency_level === 'emergencia' && '🔴 Emergencia'}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(appointment.status)}`}>
+                          {appointment.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm space-y-2">
+                        {appointment.status === 'solicitada' && (
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => confirmAppointment(appointment.id)}
+                              className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 block"
+                            >
+                              ✅ Confirmar
+                            </button>
+                            {appointment.appointment_type === 'telemedicina' && (
+                              <button
+                                onClick={() => {
+                                  const link = prompt('Ingrese el link de telemedicina:');
+                                  if (link) confirmAppointment(appointment.id, link);
+                                }}
+                                className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 block"
+                              >
+                                💻 + Link
+                              </button>
+                            )}
+                          </div>
+                        )}
+                        <a
+                          href={`tel:${appointment.patient_phone}`}
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 block text-center"
+                        >
+                          📞 Llamar
+                        </a>
+                        <a
+                          href={`mailto:${appointment.patient_email}`}
+                          className="bg-gray-600 text-white px-3 py-1 rounded text-xs hover:bg-gray-700 block text-center"
+                        >
+                          📧 Email
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
           
           {appointments.length === 0 && (
