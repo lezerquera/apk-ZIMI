@@ -1636,99 +1636,77 @@ const AppointmentsPage = ({ setCurrentPage }) => {
               </div>
             </div>
 
-            {/* Appointment Details */}
-            <div className="border-b pb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Detalles de la Cita</h3>
-              
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tipo de Consulta *
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input
-                      type="radio"
-                      name="appointment_type"
-                      value="presencial"
-                      checked={appointmentData.appointment_type === 'presencial'}
-                      onChange={(e) => setAppointmentData({...appointmentData, appointment_type: e.target.value})}
-                      className="mr-3"
-                    />
-                    <div>
-                      <div className="font-medium">🏥 Presencial</div>
-                      <div className="text-sm text-gray-600">En nuestras instalaciones</div>
-                    </div>
-                  </label>
-                  
-                  <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input
-                      type="radio"
-                      name="appointment_type"
-                      value="telemedicina"
-                      checked={appointmentData.appointment_type === 'telemedicina'}
-                      onChange={(e) => setAppointmentData({...appointmentData, appointment_type: e.target.value})}
-                      className="mr-3"
-                    />
-                    <div>
-                      <div className="font-medium">💻 Telemedicina</div>
-                      <div className="text-sm text-gray-600">Consulta virtual</div>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fecha Preferida *
+                    Motivo de la Consulta *
                   </label>
-                  <input
-                    type="date"
+                  <textarea
+                    rows={4}
                     required
-                    min={new Date().toISOString().split('T')[0]}
-                    value={appointmentData.fecha_solicitada}
-                    onChange={(e) => setAppointmentData({...appointmentData, fecha_solicitada: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={appointmentData.mensaje}
+                    onChange={(e) => setAppointmentData({...appointmentData, mensaje: e.target.value})}
+                    placeholder="Describa detalladamente su condición, síntomas, duración y cualquier información relevante para el Dr. Zerquera..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
                   />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hora Preferida *
-                  </label>
-                  <select
-                    required
-                    value={appointmentData.hora_solicitada}
-                    onChange={(e) => setAppointmentData({...appointmentData, hora_solicitada: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Seleccione hora</option>
-                    <option value="09:00">9:00 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="13:00">1:00 PM</option>
-                    <option value="14:00">2:00 PM</option>
-                    <option value="15:00">3:00 PM</option>
-                    <option value="16:00">4:00 PM</option>
-                    <option value="17:00">5:00 PM</option>
-                  </select>
+                  <p className="text-sm text-gray-600 mt-2">
+                    💡 <strong>Tip:</strong> Mientras más información proporcione, mejor podrá el doctor asignar el tiempo apropiado para su consulta.
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Additional Information */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mensaje Adicional (Opcional)
-              </label>
-              <textarea
-                rows={4}
-                value={appointmentData.mensaje}
-                onChange={(e) => setAppointmentData({...appointmentData, mensaje: e.target.value})}
-                placeholder="Describa brevemente su condición o cualquier información adicional que considere importante..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+            {/* Appointment Type */}
+            <div className="bg-purple-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                📍 Modalidad de Consulta
+              </h3>
+              <div className="space-y-3">
+                <label className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-white cursor-pointer">
+                  <input
+                    type="radio"
+                    name="appointment_type"
+                    value="presencial"
+                    checked={appointmentData.appointment_type === 'presencial'}
+                    onChange={(e) => setAppointmentData({...appointmentData, appointment_type: e.target.value})}
+                    className="mr-3 text-blue-600"
+                  />
+                  <div>
+                    <div className="font-medium text-gray-800">🏥 Consulta Presencial</div>
+                    <div className="text-sm text-gray-600">En el consultorio del Dr. Zerquera</div>
+                  </div>
+                </label>
+                
+                <label className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-white cursor-pointer">
+                  <input
+                    type="radio"
+                    name="appointment_type"
+                    value="telemedicina"
+                    checked={appointmentData.appointment_type === 'telemedicina'}
+                    onChange={(e) => setAppointmentData({...appointmentData, appointment_type: e.target.value})}
+                    className="mr-3 text-blue-600"
+                  />
+                  <div>
+                    <div className="font-medium text-gray-800">💻 Telemedicina</div>
+                    <div className="text-sm text-gray-600">Consulta virtual por videollamada</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Professional Assurance */}
+            <div className="bg-blue-100 border-l-4 border-blue-500 p-4 rounded-r-lg">
+              <div className="flex items-start">
+                <div className="text-2xl mr-3">👨‍⚕️</div>
+                <div>
+                  <h4 className="font-semibold text-blue-900 mb-2">Compromiso Profesional</h4>
+                  <ul className="text-blue-800 text-sm space-y-1">
+                    <li>✓ El Dr. Zerquera revisará personalmente su solicitud</li>
+                    <li>✓ Se le asignará la fecha más conveniente para su condición</li>
+                    <li>✓ Recibirá confirmación con todos los detalles necesarios</li>
+                    <li>✓ Si es urgente o emergencia, se priorizará su atención</li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
             <button
