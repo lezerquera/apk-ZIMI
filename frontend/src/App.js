@@ -719,15 +719,12 @@ const MessagingPage = ({ setCurrentPage, user }) => {
                       </select>
                     </div>
                   ) : (
-                    <input
-                      type="hidden"
-                      value={newMessage.receiver_id = 'admin'}
-                      onChange={() => setNewMessage({
-                        ...newMessage,
-                        receiver_id: 'admin',
-                        receiver_name: 'Dr. Zerquera'
-                      })}
-                    />
+                    <div>
+                      <input type="hidden" />
+                      <p className="text-sm text-gray-600 mb-2">
+                        <strong>Para:</strong> Dr. Zerquera
+                      </p>
+                    </div>
                   )}
 
                   <div>
