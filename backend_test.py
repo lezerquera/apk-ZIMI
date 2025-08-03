@@ -283,9 +283,13 @@ class BackendTester:
         """Test POST /api/auth/login endpoint"""
         try:
             # Use the registered patient's credentials
+            if not hasattr(self, 'patient_email') or not hasattr(self, 'patient_phone'):
+                self.log_test("Patient Login", False, "No patient credentials available for testing")
+                return
+                
             login_data = {
-                "email": "carlos.mendez@email.com",
-                "phone": "+1 305 555 0456"
+                "email": self.patient_email,
+                "phone": self.patient_phone
             }
             
             response = requests.post(f"{API_BASE}/auth/login", 
