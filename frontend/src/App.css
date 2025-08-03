@@ -80,6 +80,61 @@
     box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
 }
 
+/* Fix for Emergent "Made with" button interference */
+/* Hide or reposition the Emergent branding button that interferes with mobile navigation */
+div[class*="emergent-branding"],
+div[id*="emergent-branding"],
+a[href*="emergent"],
+iframe[src*="emergent-badge"] {
+    display: none !important;
+}
+
+/* Alternative: if we can't hide it, push it up */
+body::after {
+    content: "";
+    display: block;
+    height: 80px; /* Space for mobile navigation */
+    width: 100%;
+}
+
+/* Ensure mobile navigation is always on top */
+nav[class*="fixed bottom-0"] {
+    z-index: 99999 !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    border-top: 2px solid #e5e7eb !important;
+}
+
+/* Add safe area for devices with notches/home indicators */
+@supports (padding: max(0px)) {
+    nav[class*="fixed bottom-0"] {
+        padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+    }
+}
+
+/* Make sure content has enough bottom padding to not be covered by navigation */
+.min-h-screen {
+    padding-bottom: 120px !important;
+}
+
+/* Specific fix for elderly users - larger touch targets */
+@media (max-width: 768px) {
+    nav[class*="fixed bottom-0"] button {
+        min-height: 64px !important;
+        min-width: 64px !important;
+        padding: 16px 8px !important;
+    }
+    
+    nav[class*="fixed bottom-0"] button span:first-child {
+        font-size: 1.75rem !important;
+    }
+    
+    nav[class*="fixed bottom-0"] button span:last-child {
+        font-size: 0.8rem !important;
+        font-weight: 700 !important;
+    }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
