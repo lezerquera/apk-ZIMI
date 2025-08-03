@@ -511,10 +511,6 @@ const MessagingPage = ({ setCurrentPage, user }) => {
     }
     setLoading(false);
   };
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const markAsRead = async (messageId) => {
     try {
