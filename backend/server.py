@@ -188,6 +188,10 @@ class Appointment(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     confirmed_at: Optional[datetime] = None
     telemedicine_link: Optional[str] = None
+    # New fields for doctor assignment
+    assigned_date: Optional[str] = None
+    assigned_time: Optional[str] = None
+    doctor_notes: Optional[str] = None
 
 class AppointmentCreate(BaseModel):
     patient_name: str
