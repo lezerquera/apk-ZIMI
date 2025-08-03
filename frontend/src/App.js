@@ -1575,42 +1575,66 @@ const AppointmentsPage = ({ setCurrentPage }) => {
                 </div>
               </div>
               
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={appointmentData.patient_email}
-                  onChange={(e) => setAppointmentData({...appointmentData, patient_email: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Correo Electrónico *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={appointmentData.patient_email}
+                    onChange={(e) => setAppointmentData({...appointmentData, patient_email: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                    placeholder="su-email@ejemplo.com"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Appointment Details */}
-            <div className="border-b pb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Detalles de la Cita</h3>
+            {/* Medical Information */}
+            <div className="bg-green-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                🩺 Información Médica
+              </h3>
               
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Servicio Requerido *
-                </label>
-                <select
-                  required
-                  value={appointmentData.service_type}
-                  onChange={(e) => setAppointmentData({...appointmentData, service_type: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Seleccione un servicio</option>
-                  {services.map((service) => (
-                    <option key={service.id} value={service.id}>
-                      {service.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de Servicio Requerido *
+                  </label>
+                  <select
+                    required
+                    value={appointmentData.service_type}
+                    onChange={(e) => setAppointmentData({...appointmentData, service_type: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                  >
+                    <option value="">Seleccione el tipo de consulta</option>
+                    {services.map((service) => (
+                      <option key={service.id} value={service.nombre}>
+                        {service.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nivel de Urgencia *
+                  </label>
+                  <select
+                    required
+                    value={appointmentData.urgency_level || ''}
+                    onChange={(e) => setAppointmentData({...appointmentData, urgency_level: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                  >
+                    <option value="">Seleccione nivel de urgencia</option>
+                    <option value="normal">🟢 Normal - Consulta de rutina (2-3 semanas)</option>
+                    <option value="moderada">🟡 Moderada - Requiere atención pronta (1 semana)</option>
+                    <option value="urgente">🟠 Urgente - Necesita atención rápida (2-3 días)</option>
+                    <option value="emergencia">🔴 Emergencia - Atención inmediata (24 horas)</option>
+                  </select>
+                </div>
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
