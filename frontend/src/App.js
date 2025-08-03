@@ -1041,8 +1041,8 @@ const MobileNav = ({ currentPage, setCurrentPage, user }) => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:hidden z-50">
-      <div className="flex justify-around py-3">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:hidden z-[9999] pb-safe">
+      <div className="flex justify-around py-3 pb-6">
         {getNavItems().map(item => (
           <button
             key={item.id}
