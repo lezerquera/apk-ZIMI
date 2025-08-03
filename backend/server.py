@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, File, UploadFile
 from fastapi.responses import FileResponse
-import base64
+from pydantic import BaseModel
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
