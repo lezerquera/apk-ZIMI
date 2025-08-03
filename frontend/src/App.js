@@ -3129,10 +3129,10 @@ const PatientProfilePage = ({ setCurrentPage, user }) => {
 
 // Main App Component
 function App() {
-  const [currentPage, setCurrentPage] = useState('login'); // Start with login
+  const [currentPage, setCurrentPage] = useState('login');
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [uiReady, setUiReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Changed from uiReady to isLoading
 
   // Clean up any existing notifications on app start
   useEffect(() => {
