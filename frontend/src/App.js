@@ -3156,30 +3156,10 @@ function App() {
     initializeApp();
   }, []);
 
-  // Check if user is already logged in (from localStorage)
-  useEffect(() => {
-    const savedUser = localStorage.getItem('zimi_user');
-    if (savedUser) {
-      try {
-        const userData = JSON.parse(savedUser);
-        setUser(userData);
-        setIsAuthenticated(true);
-        setCurrentPage('inicio');
-        setUiReady(true); // Set UI ready immediately for returning users
-      } catch (error) {
-        localStorage.removeItem('zimi_user');
-        setUiReady(true);
-      }
-    } else {
-      setUiReady(true);
-    }
-  }, []);
-
   // Save user to localStorage when authenticated
   useEffect(() => {
     if (user && isAuthenticated) {
       localStorage.setItem('zimi_user', JSON.stringify(user));
-      setUiReady(true); // Ensure UI is ready when authenticated
     }
   }, [user, isAuthenticated]);
 
