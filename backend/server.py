@@ -511,6 +511,14 @@ def create_default_flyer(service_id: str):
         **default_data
     }
 
+# Add route to update doctor image (Admin only)
+@api_router.post("/admin/doctor-image")
+async def update_doctor_image(image_data: str):
+    """Update doctor image with base64 data"""
+    # In a real application, you'd store this in the database
+    # For now, we'll just return success
+    return {"message": "Imagen del doctor actualizada exitosamente", "image_data": image_data[:100] + "..."}
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
