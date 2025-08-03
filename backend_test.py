@@ -250,11 +250,13 @@ class BackendTester:
     def test_patient_registration(self):
         """Test POST /api/auth/register endpoint"""
         try:
+            # Use unique email with timestamp to avoid conflicts
+            unique_id = str(uuid.uuid4())[:8]
             patient_data = {
                 "nombre": "Carlos",
                 "apellido": "Mendez",
-                "email": "carlos.mendez@email.com",
-                "telefono": "+1 305 555 0456",
+                "email": f"carlos.mendez.{unique_id}@email.com",
+                "telefono": f"+1 305 555 {unique_id[:4]}",
                 "fecha_nacimiento": "1985-03-15",
                 "direccion": "123 Main St, Miami, FL 33101"
             }
@@ -267,6 +269,8 @@ class BackendTester:
                 result = response.json()
                 if result.get("patient_id"):
                     self.patient_id = result.get("patient_id")
+                    self.patient_email = patient_data["email"]
+                    self.patient_phone = patient_data["telefono"]
                     self.log_test("Patient Registration", True, f"Registered patient ID: {self.patient_id}")
                 else:
                     self.log_test("Patient Registration", False, "Missing patient ID")
