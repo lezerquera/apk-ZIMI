@@ -2169,20 +2169,22 @@ const AdminPage = ({ setCurrentPage }) => {
             </div>
           </div>
           
-          <div className="mt-6 text-center space-x-4">
-            <button
-              onClick={() => setCurrentPage('flyer-management')}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 font-semibold inline-block"
-            >
-              🎨 Gestionar Flyers de Servicios
-            </button>
-            
-            <button
-              onClick={() => setCurrentPage('doctor-image-manager')}
-              className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-semibold inline-block"
-            >
-              📸 Actualizar Foto del Doctor
-            </button>
+          <div className="mt-6 text-center">
+            <div className="flex flex-wrap justify-center gap-4">
+              <button
+                onClick={() => setCurrentPage('flyer-management')}
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 font-semibold"
+              >
+                🎨 Gestionar Flyers de Servicios
+              </button>
+              
+              <button
+                onClick={() => setCurrentPage('doctor-image-manager')}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-semibold"
+              >
+                📸 Cambiar Foto del Doctor
+              </button>
+            </div>
           </div>
         </div>
       </div>
