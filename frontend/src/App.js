@@ -3572,7 +3572,7 @@ function App() {
   // Show loading screen during initialization
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center pb-0">
         <div className="text-center">
           <img 
             src="https://drzerquera.com/wp-content/uploads/2024/02/ZIMI.png" 
